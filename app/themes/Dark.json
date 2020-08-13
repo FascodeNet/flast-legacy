@@ -1,0 +1,43 @@
+{
+    "meta": {
+        "name": "Dark",
+        "description": "Simple Dark Theme.",
+        "version": 1.0,
+        "authors": [
+            "Flast",
+            "Aoichaan0513"
+        ]
+    },
+    "theme": {
+        "base": "dark",
+        "window": {
+            "border": {
+                "active": "auto",
+                "inActive": "#1c1c1c"
+            },
+            "titleBar": {
+                "active": "auto",
+                "inActive": "#1c1c1c"
+            },
+            "foreground": "auto"
+        },
+        "tab": {
+            "background": "auto",
+            "foreground": "auto",
+            "accent": "auto",
+            "hover": {
+                "tab": "rgba(196, 196, 196, 0.4)"
+            }
+        },
+        "toolBar": {
+            "background": "auto",
+            "border": "#ffffff14",
+            "control": {
+                "button": "rgba(130, 130, 130, 0.3)"
+            }
+        },
+        "bookmarkBar": {
+            "background": "auto"
+        }
+    }
+}

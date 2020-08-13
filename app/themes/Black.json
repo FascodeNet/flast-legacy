@@ -1,0 +1,43 @@
+{
+    "meta": {
+        "name": "Black",
+        "description": "Simple Black Theme.",
+        "version": 1.0,
+        "authors": [
+            "Flast",
+            "Aoichaan0513"
+        ]
+    },
+    "theme": {
+        "base": "dark",
+        "window": {
+            "border": {
+                "active": "#1c1c1c",
+                "inActive": "#1c1c1c"
+            },
+            "titleBar": {
+                "active": "#1c1c1c",
+                "inActive": "#1c1c1c"
+            },
+            "foreground": "#ffffff"
+        },
+        "tab": {
+            "background": "#333333",
+            "foreground": "#ffffff",
+            "accent": "auto",
+            "hover": {
+                "tab": "rgba(196, 196, 196, 0.4)"
+            }
+        },
+        "toolBar": {
+            "background": "#333333",
+            "border": "#ffffff14",
+            "control": {
+                "button": "rgba(130, 130, 130, 0.3)"
+            }
+        },
+        "bookmarkBar": {
+            "background": "#333333"
+        }
+    }
+}

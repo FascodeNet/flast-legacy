@@ -1,0 +1,93 @@
+name: Build Stable
+
+on:
+  push:
+    branches:
+      - Stable
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+        # os: [windows-latest, macos-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Install Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+
+      - name: Install Required Build Toolchain
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install gcc-multilib g++-multilib
+
+      - name: Packaging
+        run: |
+          npm run package:stable
+
+      # - name: Install Dependencies
+      #   run: |
+      #     npm install
+
+      # - name: Install Dependencies / Rebuild Electron (app)
+      #   working-directory: ./app
+      #   run: |
+      #     npm install
+      #     npm audit fix
+      #     npx electron-rebuild --version 9.1.1
+
+      # - name: Set Config
+      #   env:
+      #     GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      #     FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+      #     FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+      #     FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+      #     FIREBASE_DB_URL: ${{ secrets.FIREBASE_DB_URL }}
+      #     FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
+      #     FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+      #     FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+      #     FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+      #   working-directory: ./app
+      #   run: |
+      #     node setConfig ${GOOGLE_API_KEY} ${FIREBASE_API_KEY} ${FIREBASE_APP_ID} ${FIREBASE_AUTH_DOMAIN} ${FIREBASE_DB_URL} ${FIREBASE_MEASUREMENT_ID} ${FIREBASE_MESSAGING_SENDER_ID} ${FIREBASE_PROJECT_ID} ${FIREBASE_STORAGE_BUCKET}
+
+      # - name: Builds App
+      #   working-directory: ./app
+      #   run: |
+      #     npm run builds
+
+      # - name: Package Windows
+      #   if: matrix.os == 'windows-latest'
+      #   run: |
+      #     npm run package:win
+
+      # - name: Package macOS
+      #   if: matrix.os == 'macos-latest'
+      #   run: |
+      #     npm run package:mac
+
+      # - name: Package Linux
+      #   if: matrix.os == 'ubuntu-latest'
+      #   run: |
+      #     npm run package:linux
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ matrix.os }}
+          path: dist
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: "dist/**"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

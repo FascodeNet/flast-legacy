@@ -1,0 +1,10 @@
+package-lock.json
+temp-package.json
+.firebaserc
+firebase.json
+firestore.indexes.json
+firestore.rules
+build/
+node_modules/
+electron/Config.json
+pages/resources/*.js

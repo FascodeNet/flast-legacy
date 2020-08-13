@@ -1,0 +1,43 @@
+{
+    "meta": {
+        "name": "White",
+        "description": "Simple White Theme.",
+        "version": 1.0,
+        "authors": [
+            "Flast",
+            "Aoichaan0513"
+        ]
+    },
+    "theme": {
+        "base": "light",
+        "window": {
+            "border": {
+                "active": "#d4d4d4",
+                "inActive": "#d4d4d4"
+            },
+            "titleBar": {
+                "active": "#d4d4d4",
+                "inActive": "#d4d4d4"
+            },
+            "foreground": "#000000"
+        },
+        "tab": {
+            "background": "#f8f8f8",
+            "foreground": "#000000",
+            "accent": "auto",
+            "hover": {
+                "tab": "rgba(196, 196, 196, 0.4)"
+            }
+        },
+        "toolBar": {
+            "background": "#f8f8f8",
+            "border": "#0000001f",
+            "control": {
+                "button": "rgba(130, 130, 130, 0.3)"
+            }
+        },
+        "bookmarkBar": {
+            "background": "#f8f8f8"
+        }
+    }
+}

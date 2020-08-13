@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>アプリ</title>
+    <link href="flast-file:///style.css" type="text/css" rel="stylesheet" />
+    <script>
+        if (getThemeType()) {
+            document.write(
+                `<link href="https://stackpath.bootstrapcdn.com/bootswatch/3.4.1/darkly/bootstrap.min.css" type="text/css" rel="stylesheet" integrity="sha384-pKJMCXwCXq3HwRBt27cwwSmc0/DAo2BjRxGd7nEESEStk++p6LffHmhX9oqzVDUk" crossorigin="anonymous" />`
+            );
+        } else {
+            document.write(
+                `<link href="https://stackpath.bootstrapcdn.com/bootswatch/3.4.1/flatly/bootstrap.min.css" type="text/css" rel="stylesheet" integrity="sha384-bfWZLPtvQKHg/nZNhaO/ZW4Ba8ISud5CtEjnCTU6OR1yOq5zrrF+JP2o7om6rzLf" crossorigin="anonymous" />`
+            );
+        }
+    </script>
+    <link href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.min.css" type="text/css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&family=Noto+Sans&family=Roboto&display=swap" type="text/css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" type="text/css" rel="stylesheet" />
+    <link rel="icon" sizes="any" href="flast-file://public.svg" type="image/svg+xml" />
+    <link rel="mask-icon" href="flast-file://public.svg" color="black" />
+</head>
+
+<body style="padding-top: 75px;">
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand">
+                    <script>
+                        document.write(getAppName());
+                    </script>
+                </a>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#" data-toggle="modal" data-target="#clearModal">アプリをアンインストール</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3">
+                <ul class="nav nav-pills nav-stacked">
+                    <li>
+                        <a href="flast://home/">
+                            <i class="material-icons" style="vertical-align: text-bottom; font-size: 16px;">home</i> ホーム
+                        </a>
+                    </li>
+                    <hr>
+                    <li>
+                        <a href="flast://history/">
+                            <i class="material-icons" style="vertical-align: text-bottom; font-size: 16px;">history</i> 履歴
+                        </a>
+                    </li>
+                    <li>
+                        <a href="flast://downloads/">
+                            <i class="material-icons" style="vertical-align: text-bottom; font-size: 16px;">get_app</i> ダウンロード
+                        </a>
+                    </li>
+                    <li>
+                        <a href="flast://bookmarks/">
+                            <i class="material-icons" style="vertical-align: text-bottom; font-size: 16px;">bookmarks</i> ブックマーク
+                        </a>
+                    </li>
+                    <li>
+                        <a href="flast://store/">
+                            <i class="material-icons" style="vertical-align: text-bottom; font-size: 16px;">shop</i> WebApp Store
+                        </a>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="material-icons" style="vertical-align: text-bottom; font-size: 16px;">settings</i> 設定
+                        </a>
+                        <ul class="dropdown-menu" style="width: 100%;">
+                            <li><a href="flast://settings/">ホーム</a></li>
+                            <li class="divider"></li>
+                            <li><a href="flast://settings/#design">デザイン</a></li>
+                            <li><a href="flast://settings/#engine">検索エンジン</a></li>
+                            <li><a href="flast://settings/#adblock">広告ブロック</a></li>
+                            <li><a href="flast://settings/#window">ウィンドウ</a></li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="flast://settings/#about">
+                                    <script>
+                                        document.write(getAppName());
+                                    </script> について</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="flast://help/">
+                            <i class="material-icons" style="vertical-align: text-bottom; font-size: 16px;">help_outline</i> ヘルプ
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-9" style="padding-right: 0px;">
+                <div style="padding: 5px 15px; overflow-y: auto; height: calc(100vh - 75px);">
+                    <h3>アプリ</h3>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover table-style" id="appsList">
+                            <thead>
+                                <tr>
+                                    <th class="table-icon"></th>
+                                    <th class="table-title">タイトル</th>
+                                    <th class="table-url">URL</th>
+                                    <th class="table-date">追加日時</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="clearModal" tabindex="-1">
+        <div class="modal-dialog" style="z-index: 9999;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span>×</span></button>
+                    <h4 class="modal-title">アプリをアンインストール</h4>
+                </div>
+                <div class="modal-body">
+                    これまでインストールしたアプリをすべてアンインストールします。<br> 続行を押すとアプリがアンインストールされます。
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-dismiss="modal">閉じる</button>
+                    <button type="button" class="btn btn-primary" id="clearApps">続行</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/locale/ja.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(`a[href="${window.location.href}"]`).parent().addClass('active');
+
+            $('#clearApps').click(function() {
+                clearApps(true);
+                location.reload();
+            });
+
+            getApps().then((data) => {
+                data.forEach((item, i) => {
+                    $('#appsList').append(
+                        $('<tr></tr>')
+                        .append($('<td class="table-icon"></td>').append($(`<img src="http://www.google.com/s2/favicons?domain=${new URL(item.url).origin}" />`)))
+                        .append($('<td class="table-title"></td>').append($(`<a href="${item.url}"></a>`).text(item.name)))
+                        .append($(`<td class="table-url" title="${item.description}"></td>`).text(item.description))
+                        .append($('<td></td>').text(moment(item.createdAt).format('YYYY/MM/DD HH:mm')))
+                    );
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

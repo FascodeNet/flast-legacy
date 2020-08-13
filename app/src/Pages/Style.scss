@@ -1,0 +1,19 @@
+.headerFade {
+  // アニメーション設定
+  animation-name: fade-in1;
+  animation-duration: 3s; //アニメーション時間
+  animation-timing-function: ease-out; //アニメーションさせるイージング
+  animation-delay: 1s; //アニメーション開始させる時間
+  animation-iteration-count: 1; //繰り返し回数
+  animation-direction: normal; //往復処理をするかどうか
+  animation-fill-mode: forwards; //アニメーション後のスタイルをどうするか
+}
+// アニメーション
+@keyframes fade-in1 {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

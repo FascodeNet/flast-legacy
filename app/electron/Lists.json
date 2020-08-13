@@ -1,0 +1,13 @@
+[
+  "https://cdn.adblockcdn.com/filters/adblock_custom.txt",
+  "https://easylist-downloads.adblockplus.org/easylist.txt",
+  "https://easylist-downloads.adblockplus.org/exceptionrules.txt",
+  "https://easylist-downloads.adblockplus.org/abp-filters-anti-cv.txt",
+  "https://easylist.to/easylist/easyprivacy.txt",
+  "http://mirror1.malwaredomains.com/files/justdomains",
+  "https://raw.githubusercontent.com/hoshsadiq/adblock-nocoin-list/master/nocoin.txt",
+  "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt",
+  "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt",
+  "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",
+  "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt"
+]

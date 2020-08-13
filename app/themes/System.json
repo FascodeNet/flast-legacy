@@ -1,0 +1,43 @@
+{
+    "meta": {
+        "name": "System",
+        "description": "Default Theme.",
+        "version": 1.0,
+        "authors": [
+            "Flast",
+            "Aoichaan0513"
+        ]
+    },
+    "theme": {
+        "base": "system",
+        "window": {
+            "border": {
+                "active": "auto",
+                "inActive": "#8b8b8b"
+            },
+            "titleBar": {
+                "active": "auto",
+                "inActive": "#8b8b8b"
+            },
+            "foreground": "auto"
+        },
+        "tab": {
+            "background": "auto",
+            "foreground": "auto",
+            "accent": "auto",
+            "hover": {
+                "tab": "rgba(196, 196, 196, 0.4)"
+            }
+        },
+        "toolBar": {
+            "background": "auto",
+            "border": "auto",
+            "control": {
+                "button": "rgba(130, 130, 130, 0.3)"
+            }
+        },
+        "bookmarkBar": {
+            "background": "auto"
+        }
+    }
+}
