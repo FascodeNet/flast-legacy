@@ -28,20 +28,19 @@ jobs:
           sudo apt-get update
           sudo apt-get install gcc-multilib g++-multilib
 
-      - name: Packaging
+      - name: Install Dependencies
         run: |
-          npm run package:beta
+          npm install
+          npm audit fix
+          npm run channel:beta
+          npx electron-rebuild --version 9.2.0
 
-      # - name: Install Dependencies
-      #   run: |
-      #     npm install
-
-      # - name: Install Dependencies / Rebuild Electron (app)
-      #   working-directory: ./app
-      #   run: |
-      #     npm install
-      #     npm audit fix
-      #     npx electron-rebuild --version 9.2.0
+      - name: Install Dependencies / Rebuild Electron (app)
+        working-directory: ./app
+        run: |
+          npm install
+          npm audit fix
+          npx electron-rebuild --version 9.2.0
 
       # - name: Set Config
       #   env:
@@ -58,25 +57,25 @@ jobs:
       #   run: |
       #     node setConfig
 
-      # - name: Builds App
-      #   working-directory: ./app
-      #   run: |
-      #     npm run builds
+      - name: Builds App
+        working-directory: ./app
+        run: |
+          npm run builds
 
-      # - name: Package Windows
-      #   if: matrix.os == 'windows-latest'
-      #   run: |
-      #     npm run package:win
+      - name: Package Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          npm run build:win
 
-      # - name: Package macOS
-      #   if: matrix.os == 'macos-latest'
-      #   run: |
-      #     npm run package:mac
+      - name: Package macOS
+        if: matrix.os == 'macos-latest'
+        run: |
+          npm run build:mac
 
-      # - name: Package Linux
-      #   if: matrix.os == 'ubuntu-latest'
-      #   run: |
-      #     npm run package:linux
+      - name: Package Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          npm run build:linux
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
