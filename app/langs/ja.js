@@ -295,6 +295,26 @@ module.exports = {
     internalPages: {
         home: {
             title: 'ホーム',
+            menu: {
+                name: 'メニュー',
+                services: {
+                    showMenu: 'サービスを表示',
+                    hideMenu: 'サービスを非表示',
+
+                    myAccount: 'マイアカウント',
+                    search: '検索',
+                    maps: 'マップ',
+                    youtube: 'YouTube',
+                    news: 'ニュース',
+                    gmail: 'Gmail',
+                    drive: 'ドライブ',
+                    calendar: 'カレンダー',
+                    translate: '翻訳',
+                    documents: 'ドキュメント',
+                    sheets: 'スプレッドシート',
+                    slides: 'スライド'
+                }
+            },
             bookmarks: {
                 title: 'ブックマーク',
                 table: {
@@ -475,8 +495,18 @@ module.exports = {
                         openExternal: '外部リンクを開く',
 
                         content: 'コンテンツ',
-                        zoomLevels: 'ズームレベル',
-                        pdfDocuments: 'PDF ドキュメント'
+                        zoomLevels: {
+                            name: 'ズームレベル',
+                            controls: {
+                                reset: 'リセット'
+                            }
+                        },
+                        pdfDocuments: {
+                            name: 'PDF ドキュメント',
+                            controls: {
+                                defaultDownload: 'PDF ファイルを ${app_name} で自動的に開く代わりにダウンロードする'
+                            }
+                        }
                     }
                 },
                 about: {

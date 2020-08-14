@@ -1,16 +1,14 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import { withRouter } from 'react-router-dom';
+import styled from 'styled-components';
 import classNames from 'classnames';
 import Moment from 'react-moment';
 import throttle from 'lodash/throttle';
-import PrettyScroll from 'pretty-scroll';
 
 import PropTypes from 'prop-types';
-import { createMuiTheme, withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 
-import Container from '@material-ui/core/Container';
 import { Grid } from '@material-ui/core';
 
 import Link from '@material-ui/core/Link';
@@ -23,46 +21,63 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import Paper from '@material-ui/core/Paper';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import Avatar from '@material-ui/core/Avatar';
-import Badge from '@material-ui/core/Badge';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import ButtonBase from '@material-ui/core/ButtonBase';
 
 import TextField from '@material-ui/core/TextField';
-import IconButton from '@material-ui/core/IconButton';
 import InputAdornment from '@material-ui/core/InputAdornment';
-
-import ButtonGroup from '@material-ui/core/ButtonGroup';
-import Button from '@material-ui/core/Button';
 
 import SearchIcon from '@material-ui/icons/Search';
 import SendIcon from '@material-ui/icons/Send';
 
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-import HomeIcon from '@material-ui/icons/HomeOutlined';
+import BookmarksIcon from '@material-ui/icons/BookmarksOutlined';
 import HistoryIcon from '@material-ui/icons/HistoryOutlined';
 import DownloadsIcon from '@material-ui/icons/GetAppOutlined';
-import BookmarksIcon from '@material-ui/icons/BookmarksOutlined';
-import AppsIcon from '@material-ui/icons/AppsOutlined';
-import ShopIcon from '@material-ui/icons/ShopOutlined';
 import SettingsIcon from '@material-ui/icons/SettingsOutlined';
-import HelpIcon from '@material-ui/icons/HelpOutlineOutlined';
-import InfoIcon from '@material-ui/icons/InfoOutlined';
 
 import { isDarkTheme, getTheme, darkTheme, lightTheme } from './Theme.jsx';
 
-// import cssStyles from './Style.scss';
-
 const protocolStr = 'flast';
 const fileProtocolStr = `${protocolStr}-file`;
+
+
+const Menu = styled.div`
+  width: 320px;
+  padding: 10px;
+  position: absolute;
+  top: 85px;
+  right: 20px;
+  opacity: ${props => props.isShowing ? 1 : 0};
+  transform: translate3d(0px, ${props => props.isShowing ? 0 : -10}px, 0px);
+  box-sizing: border-box;
+  background-color: ${isDarkTheme() ? 'rgba(60, 60, 60, 0.6)' : 'rgba(255, 255, 255, 0.7)'};
+  transition: opacity 0.35s cubic-bezier(0.1, 0.9, 0.2, 1) 0s, transform 0.35s cubic-bezier(0.1, 0.9, 0.2, 1) 0s;
+  backdrop-filter: blur(10px);
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 5px 5px -3px, rgba(0, 0, 0, 0.14) 0px 8px 10px 1px, rgba(0, 0, 0, 0.12) 0px 3px 14px 2px;
+  border-radius: 4px;
+  z-index: 1;
+`;
+
+const MenuContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  display: ${props => props.isShowing ? 'flex' : 'none'};
+  flex-flow: column nowrap;
+`;
+
+const MenuDivider = styled.div`
+  width: 100%;
+  height: 1px;
+  margin: ${props => !props.disableMargin ? '8px 0px' : '0px'};
+  background-color: ${isDarkTheme() ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)'};
+`;
 
 
 const styles = theme => ({
@@ -71,12 +86,18 @@ const styles = theme => ({
         overflowX: 'auto',
     },
     floatingButton: {
+        width: 48,
+        height: 48,
         margin: '.5rem',
         backdropFilter: 'blur(10px)',
         transition: 'box-shadow 0.2s ease 0s, background-color 0.2s ease 0s',
+        cursor: 'pointer',
         '&:hover': {
             boxShadow: 'rgba(0, 0, 0, 0.2) 0px 5px 5px -3px, rgba(0, 0, 0, 0.14) 0px 8px 10px 1px, rgba(0, 0, 0, 0.12) 0px 3px 14px 2px'
         }
+    },
+    blurEffect: {
+        boxShadow: 'rgba(0, 0, 0, 0.2) 0px 5px 5px -3px, rgba(0, 0, 0, 0.14) 0px 8px 10px 1px, rgba(0, 0, 0, 0.12) 0px 3px 14px 2px'
     },
     pageHeaderLight: {
         paddingTop: '1rem',
@@ -108,6 +129,34 @@ const styles = theme => ({
         backgroundSize: 'cover !important',
         backgroundAttachment: 'fixed !important',
         backgroundRepeat: 'no-repeat !important'
+    },
+    serviceButton: {
+        width: 90,
+        height: 90,
+        margin: 5,
+        display: 'flex',
+        flexFlow: 'column nowrap',
+        justifyContent: 'center',
+        alignItems: 'center',
+        cursor: 'pointer',
+        transition: 'background-color 0.2s ease 0s',
+        borderRadius: 4,
+        '& img': {
+            width: 50,
+            height: 50,
+            userSelect: 'none',
+            pointerEvents: 'none'
+        },
+        '& span': {
+            marginTop: 3,
+            userSelect: 'none',
+            fontFamily: '"Product-Sans-Regular", "Noto Sans JP"',
+            fontSize: 14,
+            textAlign: 'center'
+        },
+        '&:hover': {
+            backgroundColor: isDarkTheme() ? 'rgba(60, 60, 60, 0.6)' : 'rgba(255, 255, 255, 0.7)'
+        }
     },
     table: {
         tableLayout: 'fixed',
@@ -195,13 +244,33 @@ class Home extends Component {
 
         this.state = {
             profile: window.getProfile(),
+
+            isMenuShowing: false,
+            isServiceShowing: false,
+            services: [
+                { id: 'myAccount', url: 'https://myaccount.google.com/' },
+                { id: 'search', url: 'https://www.google.com/' },
+                { id: 'maps', url: 'https://www.google.com/maps/' },
+                { id: 'youtube', url: 'https://www.youtube.com/' },
+                { id: 'news', url: 'https://news.google.com/' },
+                { id: 'gmail', url: 'https://mail.google.com/mail/' },
+                { id: 'drive', url: 'https://drive.google.com/drive/' },
+                { id: 'calendar', url: 'https://calendar.google.com/calendar/' },
+                { id: 'translate', url: 'https://translate.google.com/' },
+                { id: 'documents', url: 'https://docs.google.com/document/' },
+                { id: 'sheets', url: 'https://docs.google.com/spleadsheets/' },
+                { id: 'slides', url: 'https://docs.google.com/presentation/' }
+            ],
+
             bookMarks: [],
             privMarks: [],
             histories: [],
             downloads: [],
+
             topImageId: 1,
             inputText: '',
             inputType: false,
+
             isExpanded: 'bookMarks',
             isDialogOpened: false,
             scrollTop: 0
@@ -212,6 +281,9 @@ class Home extends Component {
                 scrollTop: document.documentElement.scrollTop
             });
         }, 100));
+
+        this.menuRef = React.createRef()
+        this.handleMenuClose = this.handleMenuClose.bind(this)
 
         this.internalPages = window.getLanguageFile().internalPages;
     }
@@ -248,15 +320,27 @@ class Home extends Component {
             this.setState({ downloads: data });
         });
 
+        document.addEventListener('click', this.handleMenuClose);
+
         document.title = this.internalPages.home.title;
+    }
+
+    componentWillUnmount = () => {
+        document.removeEventListener('click', this.handleMenuClose);
+    }
+
+    handleMenuButton = () => {
+        this.setState({ isMenuShowing: !this.state.isMenuShowing });
+    }
+
+    handleMenuClose = (e) => {
+        if (!this.state.isMenuShowing || e.target.id === 'userButton') return
+        if (this.menuRef && this.menuRef.current && !this.menuRef.current.contains(e.target))
+            this.setState({ isMenuShowing: false });
     }
 
     handleChange = (panel) => (e, isExpanded) => {
         this.setState({ isExpanded: isExpanded ? panel : false });
-    }
-
-    handleDialogClose = () => {
-        this.setState({ isDialogOpened: false });
     }
 
     handleKeydown = (e) => {
@@ -291,149 +375,192 @@ class Home extends Component {
 
     isURL = (input) => {
         const pattern = /^((?:\w+:)?\/\/([^\s.]+\.\S{2}|localhost[:?\d]*)|flast:\/\/\S.*)\S*$/;
+        return pattern.test(input) || pattern.test(`http://${input}`);
+    }
 
-        if (pattern.test(input)) {
-            return true;
-        }
-        return pattern.test(`http://${input}`);
+    getName = () => {
+        const name = String(window.getProfile().name);
+        return name.trim().length > 0 ? name.trim() : window.getLanguageFile().main.user;
     }
 
     render() {
         const { classes } = this.props;
 
+        const UserButton = () => (
+            <Tooltip title={this.state.profile.name}>
+                <Avatar imgProps={{ id: 'userButton' }} src={this.state.profile.avatar} className={classNames(classes.floatingButton, this.state.isMenuShowing ? classes.blurEffect : null)} onClick={this.handleMenuButton} />
+            </Tooltip>
+        )
+
+        const ServiceButton = (props) => (
+            <Grid item className={classes.serviceButton} onClick={() => window.location.href = props.url}>
+                <img src={props.icon} />
+                <span>{props.name}</span>
+            </Grid>
+        )
+
         return (
             <ThemeProvider theme={window.getThemeType() ? darkTheme : lightTheme}>
                 <main className="container" style={{ minHeight: '100vh', margin: 0, padding: 0, boxSizing: 'border-box', color: window.getThemeType() ? '#fff' : '#000000de', backgroundColor: window.getThemeType() ? '#303030' : '#fafafa' }}>
-                    <div className={classes.topImage} style={{ display: window.getHomePageBackgroundType() !== -1 ? 'flex' : 'none', flexFlow: 'column nowrap', justifyContent: 'space-between', height: '100vh', background: `url(${window.getHomePageBackgroundType() === 0 ? `${protocolStr}://resources/photos/${this.state.topImageId}.jpg` : window.getHomePageBackgroundImage()})` }}>
-                        <div style={{
-                            display: 'flex',
-                            margin: 15,
-                            flexFlow: 'row nowrap',
-                            justifyContent: 'flex-start',
-                            alignItems: 'center'
-                        }}>
-                            <div>
+                    {window.getHomePageBackgroundType() !== -1 ?
+                        <div className={classes.topImage} style={{ position: 'relative', display: 'flex', flexFlow: 'column nowrap', justifyContent: 'space-between', height: '100vh', background: `url(${window.getHomePageBackgroundType() === 0 ? `${protocolStr}://resources/photos/${this.state.topImageId}.jpg` : window.getHomePageBackgroundImage()})` }}>
+                            <div style={{
+                                display: 'flex',
+                                margin: 15,
+                                flexFlow: 'row nowrap',
+                                justifyContent: 'flex-start',
+                                alignItems: 'center'
+                            }}>
+                                <div style={{ marginLeft: 'auto' }}>
+                                    <UserButton />
+                                </div>
+                            </div>
+                            <div style={{
+                                height: '40%',
+                                margin: '0 auto',
+                                display: 'flex',
+                                flexFlow: 'column nowrap',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                            }}>
+                                <TextField
+                                    id="outlined-full-width"
+                                    placeholder="検索またはアドレスを入力"
+                                    fullWidth
+                                    margin="normal"
+                                    variant="outlined"
+                                    style={{
+                                        width: '70vw',
+                                        margin: 8,
+                                        backgroundColor: window.getThemeType() ? '#303030' : '#fafafa',
+                                        boxShadow: '0 5px 10px -3px rgba(0,0,0,.15), 0 0 3px rgba(0,0,0,.1)',
+                                        borderRadius: 5,
+                                        color: '#000000de !important'
+                                    }}
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                    value={this.state.inputText}
+                                    onChange={(e) => { this.setState({ inputText: e.target.value }); }}
+                                    onKeyDown={this.handleKeydown}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton edge="end" >
+                                                    {this.state.inputType ? <SendIcon /> : <SearchIcon />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                            </div>
+                            <div style={{
+                                display: 'flex',
+                                margin: '0 auto',
+                                height: '45%',
+                                flexFlow: 'column nowrap',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                            }}>
+                                <Button variant="contained" color="primary" className={classes.button} onClick={() => { window.scrollTo(0, window.innerHeight); }}>
+                                    <ArrowDownwardIcon className={classes.leftIcon} />
+                                    Send
+                                </Button>
+                            </div>
+                        </div>
+                        :
+                        <div className={classes.topImage} style={{ position: 'sticky', transition: 'all 500ms ease 0s', top: 0, background: `url(${window.getHomePageBackgroundType() === 0 ? `${protocolStr}://resources/photos/${this.state.topImageId}.jpg` : window.getHomePageBackgroundImage()})` }}>
+                            <div style={{
+                                height: '50%',
+                                margin: '0 15px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                            }}>
+                                <TextField
+                                    id="outlined-full-width"
+                                    placeholder="検索またはアドレスを入力"
+                                    fullWidth
+                                    margin="normal"
+                                    variant="outlined"
+                                    style={{
+                                        width: '70vw',
+                                        margin: 8,
+                                        marginLeft: 'auto',
+                                        backgroundColor: window.getThemeType() ? '#303030' : '#fafafa',
+                                        boxShadow: '0 5px 10px -3px rgba(0,0,0,.15), 0 0 3px rgba(0,0,0,.1)',
+                                        borderRadius: 5,
+                                        color: '#000000de !important'
+                                    }}
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                    value={this.state.inputText}
+                                    onChange={(e) => { this.setState({ inputText: e.target.value }); }}
+                                    onKeyDown={this.handleKeydown}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton edge="end" >
+                                                    {this.state.inputType ? <SendIcon /> : <SearchIcon />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                                <div style={{ marginLeft: 'auto' }}>
+                                    <UserButton />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <Menu ref={this.menuRef} isShowing={this.state.isMenuShowing}>
+                        <MenuContainer isShowing={this.state.isMenuShowing}>
+                            <div style={{ display: 'flex', justifyContent: 'center' }}>
                                 <Tooltip title={this.internalPages.bookmarks.title}>
-                                    <IconButton aria-label={this.internalPages.bookmarks.title} className={classes.floatingButton} onClick={(e) => { window.location.href = `${protocolStr}://bookmarks`; }}>
-                                        <BookmarksIcon color="primary" />
+                                    <IconButton aria-label={this.internalPages.bookmarks.title} style={{ margin: 10 }} onClick={(e) => { window.location.href = `${protocolStr}://bookmarks`; }}>
+                                        <BookmarksIcon />
                                     </IconButton>
                                 </Tooltip>
                                 <Tooltip title={this.internalPages.history.title}>
-                                    <IconButton aria-label={this.internalPages.history.title} className={classes.floatingButton} onClick={(e) => { window.location.href = `${protocolStr}://history`; }}>
-                                        <HistoryIcon color="primary" />
+                                    <IconButton aria-label={this.internalPages.history.title} style={{ margin: 10 }} onClick={(e) => { window.location.href = `${protocolStr}://history`; }}>
+                                        <HistoryIcon />
                                     </IconButton>
                                 </Tooltip>
                                 <Tooltip title={this.internalPages.downloads.title}>
-                                    <IconButton aria-label={this.internalPages.downloads.title} className={classes.floatingButton} onClick={(e) => { window.location.href = `${protocolStr}://downloads`; }}>
-                                        <DownloadsIcon color="primary" />
+                                    <IconButton aria-label={this.internalPages.downloads.title} style={{ margin: 10 }} onClick={(e) => { window.location.href = `${protocolStr}://downloads`; }}>
+                                        <DownloadsIcon />
                                     </IconButton>
                                 </Tooltip>
                                 <Tooltip title={this.internalPages.settings.title}>
-                                    <IconButton aria-label={this.internalPages.settings.title} className={classes.floatingButton} onClick={(e) => { window.location.href = `${protocolStr}://settings`; }}>
-                                        <SettingsIcon color="primary" />
+                                    <IconButton aria-label={this.internalPages.settings.title} style={{ margin: 10 }} onClick={(e) => { window.location.href = `${protocolStr}://settings`; }}>
+                                        <SettingsIcon />
                                     </IconButton>
                                 </Tooltip>
                             </div>
-                            <div style={{ marginLeft: 'auto' }}>
-                                <Tooltip title={this.state.profile.name}>
-                                    <Avatar src={this.state.profile.avatar} className={classes.floatingButton} style={{ width: 48, height: 48 }} />
-                                </Tooltip>
+                            <MenuDivider disableMargin />
+                            <div style={{ height: 250, display: 'flex', flexFlow: 'column nowrap', justifyContent: 'center', alignItems: 'center' }}>
+                                <Avatar src={this.state.profile.avatar} style={{ borderRadius: '50%', width: 150, height: 150, objectFit: 'cover' }} />
+                                <h4 style={{ marginBottom: 0, fontFamily: '"Noto Sans", "Noto Sans JP"' }}>{this.getName()}</h4>
                             </div>
-                        </div>
-                        <div style={{
-                            display: 'flex',
-                            margin: '0 auto',
-                            height: '40%',
-                            flexFlow: 'column nowrap',
-                            justifyContent: 'center',
-                            alignItems: 'center'
-                        }}>
-                            <TextField
-                                id="outlined-full-width"
-                                placeholder="検索またはアドレスを入力"
-                                fullWidth
-                                margin="normal"
-                                variant="outlined"
-                                style={{
-                                    width: '70vw',
-                                    margin: 8,
-                                    backgroundColor: window.getThemeType() ? '#303030' : '#fafafa',
-                                    boxShadow: '0 5px 10px -3px rgba(0,0,0,.15), 0 0 3px rgba(0,0,0,.1)',
-                                    borderRadius: 5,
-                                    color: '#000000de !important'
-                                }}
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                value={this.state.inputText}
-                                onChange={(e) => { this.setState({ inputText: e.target.value }); }}
-                                onKeyDown={this.handleKeydown}
-                                InputProps={{
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <IconButton edge="end" >
-                                                {this.state.inputType ? <SendIcon /> : <SearchIcon />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </div>
-                        <div style={{
-                            display: 'flex',
-                            margin: '0 auto',
-                            height: '45%',
-                            flexFlow: 'column nowrap',
-                            justifyContent: 'center',
-                            alignItems: 'center'
-                        }}>
-                            <Button variant="contained" color="primary" className={classes.button} onClick={() => { window.scrollTo(0, window.innerHeight); }}>
-                                <ArrowDownwardIcon className={classes.leftIcon} />
-                                Send
-                            </Button>
-                        </div>
-                    </div>
-                    <div className={classes.topImage} style={{ position: window.getHomePageBackgroundType() === -1 ? 'sticky' : 'static', display: window.getHomePageBackgroundType() === -1 ? 'block' : 'none', transition: 'all 500ms ease 0s', top: 0, background: `url(${window.getHomePageBackgroundType() === 0 ? `${protocolStr}://resources/photos/${this.state.topImageId}.jpg` : window.getHomePageBackgroundImage()})` }}>
-                        <div style={{
-                            display: 'flex',
-                            margin: '0 auto',
-                            height: '50%',
-                            flexFlow: 'column nowrap',
-                            justifyContent: 'center',
-                            alignItems: 'center'
-                        }}>
-                            <TextField
-                                id="outlined-full-width"
-                                placeholder="検索またはアドレスを入力"
-                                fullWidth
-                                margin="normal"
-                                variant="outlined"
-                                style={{
-                                    width: '70vw',
-                                    margin: 8,
-                                    backgroundColor: window.getThemeType() ? '#303030' : '#fafafa',
-                                    boxShadow: '0 5px 10px -3px rgba(0,0,0,.15), 0 0 3px rgba(0,0,0,.1)',
-                                    borderRadius: 5,
-                                    color: '#000000de !important'
-                                }}
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                value={this.state.inputText}
-                                onChange={(e) => { this.setState({ inputText: e.target.value }); }}
-                                onKeyDown={this.handleKeydown}
-                                InputProps={{
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <IconButton edge="end" >
-                                                {this.state.inputType ? <SendIcon /> : <SearchIcon />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </div>
-                    </div>
+                            <MenuDivider disableMargin />
+                            <Grid container spacing={0}>
+                                <Grid item xs={12} component={ButtonBase} onClick={() => this.setState({ isServiceShowing: !this.state.isServiceShowing })} style={{ padding: 5 }}>
+                                    <Typography variant="body2">{this.internalPages.home.menu.services[`${!this.state.isServiceShowing ? 'show' : 'hide'}Menu`]}</Typography>
+                                </Grid>
+                                <div style={{ width: '100%', display: this.state.isServiceShowing ? 'flex' : 'none', flexWrap: 'wrap' }}>
+                                    {this.state.services.map((item, i) => (
+                                        <ServiceButton
+                                            key={i}
+                                            name={this.internalPages.home.menu.services[item.id]}
+                                            icon={`${protocolStr}://resources/services/${item.id}_48dp.svg`}
+                                            url={item.url}
+                                        />
+                                    ))}
+                                </div>
+                            </Grid>
+                        </MenuContainer>
+                    </Menu>
                     <Grid container style={{ padding: '30px 0px 50px 0px' }}>
                         <Grid item xs={1} />
                         <Grid item xs={10}>

@@ -1202,6 +1202,7 @@ SettingsStartUpPage.propTypes = {
 };
 
 class SettingsSearchEnginePage extends Component {
+
     constructor(props) {
         super(props);
 
@@ -1295,6 +1296,7 @@ SettingsSearchEnginePage.propTypes = {
 };
 
 class SettingsPageSettingsPage extends Component {
+
     constructor(props) {
         super(props);
 
@@ -1309,7 +1311,9 @@ class SettingsPageSettingsPage extends Component {
             isMidi: -1,
             isPointer: -1,
             isFullScreen: -1,
-            isOpenExternal: -1
+            isOpenExternal: -1,
+
+            zoomLevel: 1
         };
 
         this.settings = window.getLanguageFile().internalPages.settings;
@@ -1326,7 +1330,9 @@ class SettingsPageSettingsPage extends Component {
             isMidi: window.getMidi(),
             isPointer: window.getPointer(),
             isFullScreen: window.getFullScreen(),
-            isOpenExternal: window.getOpenExternal()
+            isOpenExternal: window.getOpenExternal(),
+
+            zoomLevel: window.getZoomLevel()
         });
 
         document.title = `${this.settings.title} » ${this.section.title}`;
@@ -1412,9 +1418,10 @@ class SettingsPageSettingsPage extends Component {
                             <Grid item xs={12} className={classes.itemButtonRoot} component={ButtonBase} onClick={(e) => this.props.history.push('/pageSettings/content/zoomLevels')}>
                                 <div className={classes.itemTitleRoot}>
                                     <SearchIcon />
-                                    <Typography variant="body2" style={{ marginLeft: 10 }}>{this.section.controls.zoomLevels}</Typography>
+                                    <Typography variant="body2" style={{ marginLeft: 10 }}>{this.section.controls.zoomLevels.name}</Typography>
                                 </div>
                                 <div className={classes.itemControlRoot}>
+                                    <Typography variant="body2" color="textSecondary" style={{ marginRight: getTheme().spacing(1) }}>{this.state.zoomLevel * 100}%</Typography>
                                     <ChevronRightIcon />
                                 </div>
                             </Grid>
@@ -1422,7 +1429,7 @@ class SettingsPageSettingsPage extends Component {
                             <Grid item xs={12} className={classes.itemButtonRoot} component={ButtonBase} onClick={(e) => this.props.history.push('/pageSettings/content/pdfDocuments')}>
                                 <div className={classes.itemTitleRoot}>
                                     <PDFIcon />
-                                    <Typography variant="body2" style={{ marginLeft: 10 }}>{this.section.controls.pdfDocuments}</Typography>
+                                    <Typography variant="body2" style={{ marginLeft: 10 }}>{this.section.controls.pdfDocuments.name}</Typography>
                                 </div>
                                 <div className={classes.itemControlRoot}>
                                     <ChevronRightIcon />
@@ -1669,7 +1676,10 @@ class SettingsPageSettingsContentPage extends Component {
         this.state = {
             isDialogOpened: false,
 
+            // Page Settings
             type: this.props.match.params.type,
+
+            defaultZoomLevel: 1
         };
 
         this.settings = window.getLanguageFile().internalPages.settings;
@@ -1679,6 +1689,7 @@ class SettingsPageSettingsContentPage extends Component {
     componentDidMount = () => {
         this.setState({
             // Page Settings
+            defaultZoomLevel: window.getZoomLevel()
         });
 
         document.title = `${this.settings.title} » ${this.section.title}`;
@@ -1686,14 +1697,6 @@ class SettingsPageSettingsContentPage extends Component {
 
     handleDialogClose = () => {
         this.setState({ isDialogOpened: false });
-    }
-
-    handleSnackbarClose = (event, reason) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        this.setState({ isShowingSnackbar: false });
     }
 
     render() {
@@ -1721,7 +1724,44 @@ class SettingsPageSettingsContentPage extends Component {
         const Content = (props) => {
             const type = props.type ?? this.state.type
             switch (type) {
-                case 'zoomLevels': return (<Fragment></Fragment>)
+                case 'zoomLevels': return (
+                    <Fragment>
+                        <Grid item xs={12} className={classes.itemRoot}>
+                            <div className={classes.itemTitleRoot}>
+                                <Typography variant="body2" style={{ marginLeft: 10 }}>{this.section.controls.default}</Typography>
+                            </div>
+                            <div className={classes.itemControlRoot}>
+                                <Tooltip title={this.section.controls[this.state.type].controls.reset}>
+                                    <IconButton size="small" style={{ marginRight: 5 }}
+                                        onClick={() => {
+                                            this.setState({ defaultZoomLevel: 1 });
+                                            window.setZoomLevel(1);
+                                        }}
+                                    >
+                                        <RestoreIcon />
+                                    </IconButton>
+                                </Tooltip>
+                                <FormControl variant="outlined" margin="dense" className={classes.formControl} style={{ minWidth: 150 }}>
+                                    <Select
+                                        value={this.state.defaultZoomLevel}
+                                        onChange={(e) => {
+                                            this.setState({ defaultZoomLevel: e.target.value });
+                                            window.setZoomLevel(e.target.value);
+                                        }}
+                                        inputProps={{
+                                            name: this.state.type,
+                                            id: this.state.type
+                                        }}
+                                    >
+                                        {[25, 33, 50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300, 400, 500].map((item, i) => (
+                                            <MenuItem key={i} value={item / 100}>{item}%</MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </div>
+                        </Grid>
+                    </Fragment>
+                )
                 case 'pdfDocuments': return (<Fragment></Fragment>)
                 default: return (<Redirect to="/pageSettings" />)
             }
@@ -1733,7 +1773,7 @@ class SettingsPageSettingsContentPage extends Component {
                 <Container fixed className={classes.containerRoot}>
                     <Paper className={classes.paperRoot}>
                         <Grid container spacing={2}>
-                            <PageHeading text={this.section.controls[this.state.type]} />
+                            <PageHeading text={this.section.controls[this.state.type].name} />
                             <Content />
                         </Grid>
                     </Paper>
@@ -1748,18 +1788,14 @@ SettingsPageSettingsContentPage.propTypes = {
 };
 
 class SettingsAboutPage extends Component {
+
     constructor(props) {
         super(props);
 
         this.state = {
             updateStatus: 'checking',
 
-            isDialogOpened: false,
-
-            // Snackbar
-            isShowingSnackbar: false,
-            snackBarDuration: 1000 * 3,
-            snackBarText: ''
+            isDialogOpened: false
         };
 
         this.settings = window.getLanguageFile().internalPages.settings;
