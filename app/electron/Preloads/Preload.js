@@ -454,7 +454,7 @@ global.getThemeColor = () => {
 global.getTabAccentColor = () => {
     if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
 
-    return userConfig.get('design.tabAccentColor');
+    return userConfig.get('design.tabAccentColor', '#0a84ff');
 }
 
 global.setTabAccentColor = (color) => {
@@ -753,6 +753,19 @@ global.getDenyPermissions = (type) => new Promise((resolve) => {
 });
 
 
+global.getZoomLevel = () => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    return userConfig.get('pageSettings.contents.zoomLevel', 1);
+}
+
+global.setZoomLevel = (v) => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    userConfig.set('pageSettings.contents.zoomLevel', v);
+}
+
+
 /*
 // ====================================================================== //
 // ====================================================================== //
@@ -956,6 +969,10 @@ onload = () => {
 
     delete global.getAllowPermissions;
     delete global.getDenyPermissions;
+
+
+    delete global.getZoomLevel;
+    delete global.setZoomLevel;
 
 
     delete global.getLanguage;

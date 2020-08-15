@@ -406,31 +406,29 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`browserView-zoomIn-${id}`, (e, args) => {
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
-                    if (webContents.zoomFactor > 4.9) return;
+            let webContents = item.view.webContents;
 
-                    webContents.zoomFactor = webContents.zoomFactor + 0.1;
-                    this.getZoom(args.id);
-                    this.webContents.send(`menuWindow-${this.windowId}`, { url: webContents.getURL(), zoomLevel: webContents.zoomFactor });
-                }
-            });
+            if (webContents.zoomFactor > 4.9) return;
+
+            webContents.zoomFactor = webContents.zoomFactor + 0.1;
+            this.getZoom(args.id);
+            this.webContents.send(`menuWindow-${this.windowId}`, { url: webContents.getURL(), zoomLevel: webContents.zoomFactor });
         });
 
         ipcMain.on(`browserView-zoomOut-${id}`, (e, args) => {
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
-                    if (webContents.zoomFactor < 0.2) return;
+            let webContents = item.view.webContents;
 
-                    webContents.zoomFactor = webContents.zoomFactor - 0.1;
-                    this.getZoom(args.id);
-                    this.webContents.send(`menuWindow-${this.windowId}`, { url: webContents.getURL(), zoomLevel: webContents.zoomFactor });
-                }
-            });
+            if (webContents.zoomFactor < 0.2) return;
+
+            webContents.zoomFactor = webContents.zoomFactor - 0.1;
+            this.getZoom(args.id);
+            this.webContents.send(`menuWindow-${this.windowId}`, { url: webContents.getURL(), zoomLevel: webContents.zoomFactor });
         });
 
         ipcMain.on(`browserView-zoomDefault-${id}`, (e, args) => {
@@ -438,7 +436,7 @@ module.exports = class MainWindow extends BrowserWindow {
                 if (view.view.webContents.id == args.id) {
                     let webContents = this.views[i].view.webContents;
 
-                    webContents.zoomFactor = userConfig.get('pageSettings.contents.zoomLevel.default', 1);
+                    webContents.zoomFactor = userConfig.get('pageSettings.contents.zoomLevel', 1);
                     this.getZoom(args.id);
                     this.webContents.send(`menuWindow-${this.windowId}`, { url: webContents.getURL(), zoomLevel: webContents.zoomFactor });
                 }
@@ -537,8 +535,8 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`data-bookmark-add-${id}`, (e, args) => {
-            const item = this.views.find(item => item.view.webContents.id === args.id)
-            if (item == null) return
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
             const view = item.view;
             this.data.updateBookmark(view.webContents.getTitle(), view.webContents.getURL(), null, args.isFolder, args.isPrivate);
@@ -546,8 +544,8 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`data-bookmark-remove-${id}`, (e, args) => {
-            const item = this.views.find(item => item.view.webContents.id === args.id)
-            if (item == null) return
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
             const view = item.view;
             this.data.removeBookmark(view.webContents.getURL(), args.isPrivate);
@@ -555,8 +553,8 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`data-bookmark-has-${id}`, (e, args) => {
-            const item = this.views.find(item => item.view.webContents.id === args.id)
-            if (item == null) return
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
             const view = item.view;
             e.sender.send(`data-bookmark-has-${id}`, { isBookmarked: this.data.hasBookmark(view.webContents.getURL(), args.isPrivate) });
@@ -706,8 +704,8 @@ module.exports = class MainWindow extends BrowserWindow {
     }
 
     selectView = (id) => {
-        const item = this.views.find(item => item.view.webContents.id === id)
-        if (item == null) return
+        const item = this.views.find(item => item.view.webContents.id === id);
+        if (item == null) return;
 
         this.tabId = id;
 
@@ -743,8 +741,8 @@ module.exports = class MainWindow extends BrowserWindow {
     }
 
     getView = (id) => {
-        const item = this.views.find(item => item.view.webContents.id === id)
-        if (item == null) return
+        const item = this.views.find(item => item.view.webContents.id === id);
+        if (item == null) return;
 
         const url = item.view.webContents.getURL();
 
@@ -1597,16 +1595,15 @@ module.exports = class MainWindow extends BrowserWindow {
 
     getZoom = (id) => {
         if (this.isDestroyed()) return;
-        this.views.filter((item, i) => {
-            if (item.view.webContents.id == id) {
-                if (item.view.isDestroyed()) return;
-                let webContents = item.view.webContents;
+        
+        const item = this.views.find(item => item.view.webContents.id === id);
+        if (item == null) return;
 
-                console.log(webContents.zoomFactor);
-                this.webContents.send(`browserView-zoom-${this.windowId}`, { result: webContents.zoomFactor });
-                this.webContents.send(`browserView-zoom-menu-${this.windowId}`, { result: webContents.zoomFactor });
-            }
-        });
+        let webContents = item.view.webContents;
+        
+        console.log(webContents.zoomFactor);
+        this.webContents.send(`browserView-zoom-${this.windowId}`, { result: webContents.zoomFactor });
+        this.webContents.send(`browserView-zoom-menu-${this.windowId}`, { result: webContents.zoomFactor });
     }
 
     getSearchEngine = () => {

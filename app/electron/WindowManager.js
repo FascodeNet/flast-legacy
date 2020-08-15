@@ -259,7 +259,7 @@ module.exports = class WindowManager {
         });
 
         window.loadURL(startUrl);
-        window.webContents.openDevTools({ mode: 'detach' });
+        // window.webContents.openDevTools({ mode: 'detach' });
 
         window.once('ready-to-show', () => window.show());
 
