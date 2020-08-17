@@ -534,6 +534,15 @@ module.exports = {
         },
         help: {
             title: 'ヘルプ'
+        },
+        feedback: {
+            title: 'フィードバックの送信',
+            controls: {
+                description: '状況の説明',
+                url: 'URL (任意)',
+                email: 'メールアドレス (任意)',
+                send: '送信'
+            }
         }
     }
 }

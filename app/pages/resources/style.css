@@ -7,3 +7,11 @@
     font-family: 'Product-Sans-Bold';
     src: url('fonts/Product-Sans-Bold.ttf');
 }
+
+body.page, body.page > div#app {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}

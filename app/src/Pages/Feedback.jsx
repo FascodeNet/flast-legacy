@@ -14,21 +14,14 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 
 
-const lightTheme = createMuiTheme({
-    palette: {
-        type: 'light'
-    },
-});
-const darkTheme = createMuiTheme({
-    palette: {
-        type: 'dark'
-    },
-});
+import { isDarkTheme, getTheme, darkTheme, lightTheme } from './Theme.jsx';
 
-const styles = theme => ({
+
+const styles = (theme) => ({
     root: {
         height: '100%',
-        backgroundColor: window.getThemeType() ? darkTheme.palette.background.default : lightTheme.palette.background.default
+        padding: 8,
+        backgroundColor: getTheme().palette.background.default
     },
     paperHeading: {
         paddingLeft: theme.spacing(0.5),
@@ -42,6 +35,7 @@ const styles = theme => ({
 
 
 class Feedback extends Component {
+
     constructor(props) {
         super(props);
 
@@ -51,11 +45,11 @@ class Feedback extends Component {
             mailAddress: ''
         };
 
-        this.lang = window.getLanguageFile();
+        this.feedback = window.getLanguageFile().internalPages.feedback;
     }
 
     componentDidMount = () => {
-        document.body.style.backgroundColor = window.getThemeType() ? darkTheme.palette.background.default : lightTheme.palette.background.default;
+        document.title = this.feedback.title;
     }
 
     handleSendClick = () => {
@@ -68,9 +62,9 @@ class Feedback extends Component {
             body: JSON.stringify({
                 attachments: [
                     {
-                        fallback: 'フィードバックの送信 (ベータ)',
+                        fallback: 'フィードバックの送信',
                         color: '#FF8000',
-                        title: 'フィードバックの送信 (ベータ)',
+                        title: 'フィードバックの送信',
                         fields: [
                             {
                                 short: false,
@@ -107,14 +101,14 @@ class Feedback extends Component {
         const { classes } = this.props;
 
         return (
-            <ThemeProvider theme={window.getThemeType() ? darkTheme : lightTheme}>
+            <ThemeProvider theme={getTheme()}>
                 <Grid container className={classes.root}>
                     <Grid item xs={12} style={{ display: 'flex', flexDirection: 'column' }}>
-                        <ThemeProvider theme={window.getThemeType() ? darkTheme : lightTheme}>
-                            <Typography variant="h6" color="textPrimary" className={classes.paperHeading}>フィードバックの送信</Typography>
+                        <ThemeProvider theme={getTheme()}>
+                            <Typography variant="h6" color="textPrimary" className={classes.paperHeading}>{this.feedback.title}</Typography>
                             <Divider />
                             <TextField
-                                label="状況の説明"
+                                label={this.feedback.controls.description}
                                 multiline
                                 rows="4"
                                 variant="outlined"
@@ -124,7 +118,7 @@ class Feedback extends Component {
                                 onChange={(e) => this.setState({ reason: e.target.value })}
                             />
                             <TextField
-                                label="URL (任意)"
+                                label={this.feedback.controls.url}
                                 type="url"
                                 variant="outlined"
                                 className={classes.textField}
@@ -133,7 +127,7 @@ class Feedback extends Component {
                                 onChange={(e) => this.setState({ url: e.target.value })}
                             />
                             <TextField
-                                label="メールアドレス (任意)"
+                                label={this.feedback.controls.email}
                                 type="email"
                                 variant="outlined"
                                 className={classes.textField}
@@ -143,7 +137,7 @@ class Feedback extends Component {
                             />
                             <Divider />
                             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', padding: 10 }}>
-                                <Button variant="contained" color="primary" onClick={this.handleSendClick}>送信</Button>
+                                <Button variant="contained" color="primary" onClick={this.handleSendClick}>{this.feedback.controls.send}</Button>
                             </div>
                         </ThemeProvider>
                     </Grid>
@@ -155,6 +149,7 @@ class Feedback extends Component {
 
 Feedback.propTypes = {
     classes: PropTypes.object.isRequired,
+    theme: PropTypes.object.isRequired,
 };
 
 const Page = withStyles(styles, { withTheme: true })(Feedback);

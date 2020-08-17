@@ -184,6 +184,7 @@ const DialogHeaderTitle = styled.span`
   display: flex;
   align-items: center;
   font-family: 'Noto Sans', 'Noto Sans JP';
+  color: #f9f9fa;
 `;
 
 const DialogContainer = styled.div`
@@ -319,7 +320,7 @@ class MenuWindow extends Component {
 		return (
 			<div style={{ boxSizing: 'border-box', width: '100%', height: platform.isWin32 && systemPreferences.isAeroGlassEnabled() || platform.isDarwin ? 'auto' : '100%' }}>
 				<Window isDarkModeOrPrivateMode={this.getTheme() || String(this.state.windowId).startsWith('private')}>
-					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkAccountIcon : LightAccountIcon} isMoreIcon title={userConfig.get('profile.name') || lang.window.toolBar.menu.menus.userInfo} onClick={() => { this.setState({ isOpen: 'userInfo' }); }} windowId={this.state.windowId} />
+					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkAccountIcon : LightAccountIcon} isMoreIcon title={userConfig.get('profile.name') ? `${userConfig.get('profile.name')} (${lang.window.toolBar.menu.menus.userInfo})` : lang.window.toolBar.menu.menus.userInfo} onClick={() => { this.setState({ isOpen: 'userInfo' }); }} windowId={this.state.windowId} />
 					<Divider isVertical={false} isDarkModeOrPrivateMode={this.getTheme() || String(this.state.windowId).startsWith('private')} />
 					<Button title={lang.window.toolBar.menu.menus.newTab} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+T`} isMoreIcon={false} onClick={() => { this.closeMenu(); this.addTab(); }} />
 					<Button title={lang.window.toolBar.menu.menus.newWindow} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+N`} isMoreIcon={false} onClick={() => { this.closeMenu(); ipcRenderer.send(`window-add`, { isPrivate: false }); }} windowId={this.state.windowId} />

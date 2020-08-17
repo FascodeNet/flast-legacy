@@ -151,7 +151,7 @@ const styles = theme => ({
             marginTop: 3,
             userSelect: 'none',
             fontFamily: '"Product-Sans-Regular", "Noto Sans JP"',
-            fontSize: 14,
+            fontSize: 11,
             textAlign: 'center'
         },
         '&:hover': {
@@ -400,7 +400,7 @@ class Home extends Component {
         )
 
         return (
-            <ThemeProvider theme={window.getThemeType() ? darkTheme : lightTheme}>
+            <ThemeProvider theme={getTheme()}>
                 <main className="container" style={{ minHeight: '100vh', margin: 0, padding: 0, boxSizing: 'border-box', color: window.getThemeType() ? '#fff' : '#000000de', backgroundColor: window.getThemeType() ? '#303030' : '#fafafa' }}>
                     {window.getHomePageBackgroundType() !== -1 ?
                         <div className={classes.topImage} style={{ position: 'relative', display: 'flex', flexFlow: 'column nowrap', justifyContent: 'space-between', height: '100vh', background: `url(${window.getHomePageBackgroundType() === 0 ? `${protocolStr}://resources/photos/${this.state.topImageId}.jpg` : window.getHomePageBackgroundImage()})` }}>
@@ -541,7 +541,7 @@ class Home extends Component {
                             <MenuDivider disableMargin />
                             <div style={{ height: 250, display: 'flex', flexFlow: 'column nowrap', justifyContent: 'center', alignItems: 'center' }}>
                                 <Avatar src={this.state.profile.avatar} style={{ borderRadius: '50%', width: 150, height: 150, objectFit: 'cover' }} />
-                                <h4 style={{ marginBottom: 0, fontFamily: '"Noto Sans", "Noto Sans JP"' }}>{this.getName()}</h4>
+                                <Typography variant="h6" style={{ marginTop: '1rem', marginBottom: 0 }}>{this.getName()}</Typography>
                             </div>
                             <MenuDivider disableMargin />
                             <Grid container spacing={0}>

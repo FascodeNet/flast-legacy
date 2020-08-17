@@ -187,6 +187,7 @@ class BrowserView extends Component {
 			if (args.id !== this.props.index) return
 			this.props.updateTab();
 			this.setState({ viewUrl: args.url, isBookmarked: args.isBookmarked });
+			this.forceUpdate();
 			if (!this.state.isShowing)
 				this.setText(args.url);
 		});

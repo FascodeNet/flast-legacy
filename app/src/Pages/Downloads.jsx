@@ -24,7 +24,7 @@ import Button from '@material-ui/core/Button';
 import NavigationBar from './Components/NavigationBar.jsx';
 
 
-const styles = theme => ({
+const styles = (theme) => ({
     root: {
         width: '100%',
         overflowX: 'auto',

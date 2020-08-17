@@ -12,25 +12,20 @@ import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import Button from '@material-ui/core/Button';
 
-const lightTheme = createMuiTheme({
-    palette: {
-        type: 'light'
-    },
-});
-const darkTheme = createMuiTheme({
-    palette: {
-        type: 'dark'
-    },
-});
 
-const styles = theme => ({
+import { isDarkTheme, getTheme, darkTheme, lightTheme } from './Theme.jsx';
+
+
+const styles = (theme) => ({
     root: {
         height: '100%',
-        backgroundColor: window.getThemeType() ? darkTheme.palette.background.default : lightTheme.palette.background.default
+        backgroundColor: getTheme().palette.background.default
     },
 });
 
+
 class ErrorPage extends Component {
+    
     constructor(props) {
         super(props);
 
@@ -39,15 +34,11 @@ class ErrorPage extends Component {
         this.lang = window.getLanguageFile();
     }
 
-    componentDidMount = () => {
-        document.body.style.backgroundColor = window.getThemeType() ? darkTheme.palette.background.default : lightTheme.palette.background.default;
-    }
-
     render() {
         const { classes } = this.props;
 
         return (
-            <ThemeProvider theme={window.getThemeType() ? darkTheme : lightTheme}>
+            <ThemeProvider theme={getTheme()}>
                 <Grid container className={classes.root} direction="row" justify="center" alignItems="center">
                     <Grid item xs={12} style={{ flexBasis: 'initial' }}>
                         <Grid container direction="row" justify="center" alignItems="center">
@@ -81,9 +72,10 @@ class ErrorPage extends Component {
 
 ErrorPage.propTypes = {
     classes: PropTypes.object.isRequired,
+    theme: PropTypes.object.isRequired,
 };
 
-const Page = withStyles(styles)(ErrorPage);
+const Page = withStyles(styles, { withTheme: true })(ErrorPage);
 
 const App = () => (
     <HashRouter>

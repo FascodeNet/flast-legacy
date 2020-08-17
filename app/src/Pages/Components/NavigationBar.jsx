@@ -52,7 +52,7 @@ import { isDarkTheme, getTheme, darkTheme, lightTheme } from '../Theme.jsx';
 
 const drawerWidth = 240;
 
-const styles = theme => ({
+const styles = (theme) => ({
     root: {
         display: 'flex',
     },

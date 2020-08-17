@@ -1,6 +1,7 @@
 const { app, shell, ipcMain, protocol, session, BrowserWindow, BrowserView, Menu, nativeImage, clipboard, dialog, Notification, nativeTheme } = require('electron');
 const { join } = require('path');
 const { parse, format } = require('url');
+const { readFileSync } = require('fs-extra');
 const os = require('os');
 const https = require('https');
 const http = require('http');
@@ -13,7 +14,7 @@ const SuggestWindow = require('./SuggestWindow');
 
 const TranslateWindow = require('./TranslateWindow');
 
-const { app_name } = require(`${app.getAppPath()}/package.json`);
+const { name, app_name } = JSON.parse(readFileSync(`${app.getAppPath()}/package.json`, 'utf8'));
 const protocolStr = 'flast';
 const fileProtocolStr = `${protocolStr}-file`;
 
@@ -146,8 +147,8 @@ module.exports = class MainWindow extends BrowserWindow {
             this.webContents.send(`window-blur-${this.windowId}`, {});
         });
 
-        this.on('resize', this.resizeWindows);
-        this.on('move', this.resizeWindows);
+        // this.on('resize', this.resizeWindows);
+        // this.on('move', this.resizeWindows);
 
         this.on('maximize', () => {
             this.resizeWindows();
@@ -805,6 +806,7 @@ module.exports = class MainWindow extends BrowserWindow {
             }
         });
 
+        view.setAutoResize({ width: true, height: true });
         view.webContents.setVisualZoomLevelLimits(1, 3);
 
         const id = view.webContents.id;
@@ -978,14 +980,7 @@ module.exports = class MainWindow extends BrowserWindow {
                     view.webContents.loadURL(url);
                 } else {
                     e.preventDefault();
-                    const win = new BrowserWindow({
-                        webContents: options.webContents, // 提供されていれば既存の webContents を使う
-                        show: false
-                    });
-                    win.once('ready-to-show', () => win.show());
-                    if (!options.webContents)
-                        win.loadURL(url);
-                    e.newGuest = win;
+                    this.addView(url, true);
                 }
             } else if (disposition === 'foreground-tab') {
                 e.preventDefault();
@@ -2052,19 +2047,19 @@ module.exports = class MainWindow extends BrowserWindow {
 
     loadSessionAndProtocol = (partition, isPrivate = false) => {
         const ses = session.fromPartition(partition);
-        ses.setUserAgent(`${ses.getUserAgent().replace(/ Electron\/[A-z0-9-\.]*/g, '')}${isPrivate ? ' PrivMode' : ''}`);
+        ses.setUserAgent(`${ses.getUserAgent().replace(name, app_name).replace(/ Electron\/[A-z0-9-\.]*/g, '')}${isPrivate ? ' PrivMode' : ''}`);
 
         ses.setPermissionRequestHandler(async (webContents, permission, callback, details) => {
             const url = parse(webContents.getURL());
             const origin = `${url.protocol}//${url.hostname}`;
 
-            const type = this.getPermission(permission === 'media' ? details.mediaTypes : permission);
+            const type = this.getPermission(permission === 'media' ? details.mediaTypes.toString() : permission);
             const userConfigPath = `pageSettings.permissions.${type}`;
 
-            console.log(type, userConfigPath);
             const pageSettings = this.data.getPageSettings(origin, type);
 
-            if (pageSettings != undefined) {
+            console.log(type, userConfigPath, pageSettings);
+            if (pageSettings !== undefined) {
                 return callback(pageSettings.result);
             } else {
                 if (userConfig.get(userConfigPath) === null || userConfig.get(userConfigPath) === -1) {
