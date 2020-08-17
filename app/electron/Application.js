@@ -5,7 +5,7 @@ const os = require('os');
 
 const { isURL, prefixHttp } = require('./URL');
 
-const { app_package_id } = JSON.parse(readFileSync(`${app.getAppPath()}/package.json`, 'utf8'));
+const { name, app_name, app_package_id } = JSON.parse(readFileSync(`${app.getAppPath()}/package.json`, 'utf8'));
 const protocolStr = 'flast';
 const fileProtocolStr = `${protocolStr}-file`;
 
@@ -144,7 +144,7 @@ module.exports = class Application {
                 process.env.GOOGLE_API_KEY = googleAPIKey;
 
                 app.setAppUserModelId(app_package_id);
-                session.defaultSession.setUserAgent(session.defaultSession.getUserAgent().replace(/ Electron\/[A-z0-9-\.]*/g, ''));
+                session.defaultSession.setUserAgent(session.defaultSession.getUserAgent().replace(name, app_name).replace(/ Electron\/[A-z0-9-\.]*/g, ''));
 
                 autoUpdater.checkForUpdatesAndNotify();
                 Menu.setApplicationMenu(null);

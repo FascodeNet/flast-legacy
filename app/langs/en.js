@@ -534,6 +534,15 @@ module.exports = {
         },
         help: {
             title: 'Help'
+        },
+        feedback: {
+            title: 'Send Feedback',
+            controls: {
+                description: 'Description',
+                url: 'URL (Optional)',
+                email: 'Mail address (Optional)',
+                send: 'Send'
+            }
         }
     }
 }

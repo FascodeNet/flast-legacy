@@ -1,9 +1,11 @@
 const { app, ipcMain, protocol, session, BrowserWindow, nativeImage, nativeTheme } = require('electron');
 const path = require('path');
 const { parse, format } = require('url');
+const { readFileSync } = require('fs-extra');
 
 const MainWindow = require('./Windows/MainWindow');
 
+const { name, app_name } = JSON.parse(readFileSync(`${app.getAppPath()}/package.json`, 'utf8'));
 const protocolStr = 'flast';
 const fileProtocolStr = `${protocolStr}-file`;
 
@@ -376,7 +378,7 @@ module.exports = class WindowManager {
 
     loadSessionAndProtocolWithPrivateMode = (windowId) => {
         const ses = session.fromPartition(windowId);
-        ses.setUserAgent(`${ses.getUserAgent().replace(/ Electron\/[A-z0-9-\.]*/g, '')} PrivMode`);
+        ses.setUserAgent(`${ses.getUserAgent().replace(name, app_name).replace(/ Electron\/[A-z0-9-\.]*/g, '')} PrivMode`);
 
         if (!ses.protocol.isProtocolRegistered(protocolStr)) {
             ses.protocol.registerFileProtocol(protocolStr, (request, callback) => {

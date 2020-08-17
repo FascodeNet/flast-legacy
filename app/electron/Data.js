@@ -9,14 +9,14 @@ module.exports = class Data {
         this.db = db;
 
         this.datas = {
-            pageSettings: undefined,
-            favicons: undefined,
+            pageSettings: [],
+            favicons: [],
 
-            bookmarks: undefined,
-            histories: undefined,
-            downloads: undefined,
+            bookmarks: [],
+            histories: [],
+            downloads: [],
 
-            apps: undefined
+            apps: []
         };
 
         this.reloadDatas();
@@ -40,6 +40,10 @@ module.exports = class Data {
 
     hasPageSettings = (origin, type) => {
         return this.hasPageSettings(origin, type) !== undefined;
+    }
+
+    getPageSettingsForOrigin = (origin) => {
+        return this.datas.pageSettings !== undefined ? this.datas.pageSettings.find(item => item.origin === origin) : undefined;
     }
 
     getAllowPageSettingsForOrigin = (origin) => {
@@ -74,13 +78,10 @@ module.exports = class Data {
     }
 
     getFavicon = (url) => {
-        // console.log(this.datas.favicons);
-
         if (url === undefined || url === null || url === ''
             || url.startsWith(`${protocolStr}://`) || url.startsWith(`${fileProtocolStr}://`)) {
             return undefined;
         } else {
-            console.log(url);
             const parsed = new URL(url);
             const defaultFavicon = `https://www.google.com/s2/favicons?domain=${parsed.origin}`;
 
