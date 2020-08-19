@@ -49,19 +49,22 @@ export const ToolbarTextBoxWrapper = styled.div`
   }
 `;
 
-export const ToolbarTextBox = styled.input`
+export const ToolbarTextBox = styled.input.attrs(props => ({
+  spellCheck: false
+}))`
   width: calc(100% - (${buttonSize}px * ${props => props.buttonCount}));
   height: 100%;
   margin: 0px;
   padding: 3px 5px;
   left: ${buttonSize}px;
   right: ${buttonSize}px;
-  display: ${props => props.isShowing ? 'block' : 'none'};
+  display: block;
   position: absolute;
   box-sizing: border-box;
   outline: none;
   background: unset;
   border: none;
+  color: ${props => props.isShowing ? 'inherit' : 'transparent'};
   font-family: 'Noto Sans', 'Noto Sans JP';
   cursor: initial;
   /* border-left: solid 1px #c1c1c1; */
@@ -75,7 +78,7 @@ export const ToolbarDummyTextBox = styled.div`
   padding: 3px 5px !important;
   left: ${buttonSize}px !important;
   right: ${buttonSize}px !important;
-  display: ${props => props.isShowing ? 'flex' : 'none'};
+  display: flex;
   align-items: center;
   position: absolute !important;
   box-sizing: border-box;
@@ -85,6 +88,7 @@ export const ToolbarDummyTextBox = styled.div`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  color: ${props => props.isShowing ? 'inherit' : 'transparent'};
   font-family: 'Noto Sans', 'Noto Sans JP';
   cursor: text;
 

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 
 import styled from 'styled-components';
 
@@ -147,9 +147,10 @@ class SuggestWindow extends Component {
 
 			let suggestions = [];
 
+			const text = data[0].toLowerCase();
 			for (const item of data[1])
 				if (suggestions.indexOf(item) === -1)
-					suggestions.push(String(item).toLowerCase());
+					suggestions.push({ value: String(item).toLowerCase(), texts: [text, String(item).replace(text, '').toLowerCase()] });
 
 			this.setState({
 				id: args.id,
@@ -275,9 +276,9 @@ class SuggestWindow extends Component {
 					</SuggestListItem>
 					{this.state.suggestions.map((item, i) => {
 						return (
-							<SuggestListItem key={i} style={{ padding: 4, color: this.getTheme() || String(this.props.match.params.windowId).startsWith('private') ? '#f9f9fa' : '#353535' }} windowId={this.props.match.params.windowId} onClick={() => { ipcRenderer.send(`suggestWindow-loadURL-${this.props.match.params.windowId}`, { id: this.state.id, url: this.getSearchEngine().url.replace('%s', encodeURIComponent(item)) }); }}>
+							<SuggestListItem key={i} style={{ padding: 4, color: this.getTheme() || String(this.props.match.params.windowId).startsWith('private') ? '#f9f9fa' : '#353535' }} windowId={this.props.match.params.windowId} onClick={() => { ipcRenderer.send(`suggestWindow-loadURL-${this.props.match.params.windowId}`, { id: this.state.id, url: this.getSearchEngine().url.replace('%s', encodeURIComponent(item.value)) }); }}>
 								<SuggestListItemIcon src={this.getTheme() || String(this.props.match.params.windowId).startsWith('private') ? DarkSearchIcon : LightSearchIcon} size={16} />
-								{item}
+								{item.value.startsWith(item.texts[0]) ? <Fragment>{item.texts[0]}<b>{item.texts[1]}</b></Fragment> : item.value}
 								<SuggestListItemSecondaryText>
 									<span style={{ margin: '0px 4px' }}>&mdash;</span>
 									{String(lang.window.toolBar.addressBar.textBox.suggest.search).replace(/{replace}/, this.getSearchEngine().name)}

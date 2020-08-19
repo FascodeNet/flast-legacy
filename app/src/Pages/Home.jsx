@@ -80,7 +80,7 @@ const MenuDivider = styled.div`
 `;
 
 
-const styles = theme => ({
+const styles = (theme) => ({
     root: {
         width: '100%',
         overflowX: 'auto',
@@ -126,8 +126,9 @@ const styles = theme => ({
     },
     topImage: {
         minHeight: '100%',
-        backgroundSize: 'cover !important',
         backgroundAttachment: 'fixed !important',
+        backgroundSize: 'cover !important',
+        backgroundPosition: 'center !important',
         backgroundRepeat: 'no-repeat !important'
     },
     serviceButton: {

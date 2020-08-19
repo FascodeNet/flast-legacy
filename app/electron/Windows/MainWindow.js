@@ -258,13 +258,12 @@ module.exports = class MainWindow extends BrowserWindow {
         ipcMain.on(`window-menuWindow-${id}`, (e, args) => {
             this.hideWindows();
             if (!this.menuWindow.isVisible()) {
-                this.views.filter((view, i) => {
-                    if (view.view.webContents.id == args.id) {
-                        let webContents = this.views[i].view.webContents;
+                const item = this.views.find(item => item.view.webContents.id === args.id);
+                if (item == null) return;
+    
+                let webContents = item.view.webContents;
 
-                        this.menuWindow.showWindow(args.id, args.url, webContents.zoomFactor, args.openUserInfo);
-                    }
-                });
+                this.menuWindow.showWindow(args.id, args.url, webContents.zoomFactor, args.openUserInfo);
             } else {
                 this.menuWindow.hide();
             }
@@ -311,67 +310,62 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`browserView-goBack-${id}`, (e, args) => {
-            this.views.filter((item, i) => {
-                if (item.view.webContents.id === args.id) {
-                    let webContents = item.view.webContents;
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
-                    if (webContents.canGoBack())
-                        webContents.goBack();
+            let webContents = item.view.webContents;
 
-                    const url = webContents.getURL();
-                    if (url.startsWith(`${protocolStr}://error`)) {
-                        if (webContents.canGoBack())
-                            webContents.goBack();
-                    }
-                }
-            });
+            if (webContents.canGoBack())
+                webContents.goBack();
+
+            const url = webContents.getURL();
+            if (url.startsWith(`${protocolStr}://error`)) {
+                if (webContents.canGoBack())
+                    webContents.goBack();
+            }
         });
 
         ipcMain.on(`browserView-goForward-${id}`, (e, args) => {
-            this.views.filter((item, i) => {
-                if (item.view.webContents.id === args.id) {
-                    let webContents = item.view.webContents;
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
-                    if (webContents.canGoForward())
-                        webContents.goForward();
+            let webContents = item.view.webContents;
 
-                    const url = webContents.getURL();
-                    if (url.startsWith(`${protocolStr}://error`)) {
-                        if (webContents.canGoForward())
-                            webContents.goForward();
-                    }
-                }
-            });
+            if (webContents.canGoForward())
+                webContents.goForward();
+
+            const url = webContents.getURL();
+            if (url.startsWith(`${protocolStr}://error`)) {
+                if (webContents.canGoForward())
+                    webContents.goForward();
+            }
         });
 
         ipcMain.on(`browserView-reload-${id}`, (e, args) => {
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
-                    webContents.reload();
-                }
-            });
+            let webContents = item.view.webContents;
+
+            webContents.reload();
         });
 
         ipcMain.on(`browserView-stop-${id}`, (e, args) => {
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
-                    webContents.stop();
-                }
-            });
+            let webContents = item.view.webContents;
+
+            webContents.stop();
         });
 
         ipcMain.on(`browserView-goHome-${id}`, (e, args) => {
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
-                    webContents.loadURL(userConfig.get('homePage.homeButton.isDefaultHomePage') ? `${protocolStr}://home/` : userConfig.get('homePage.homeButton.defaultPage'));
-                }
-            });
+            let webContents = item.view.webContents;
+
+            webContents.loadURL(userConfig.get('homePage.homeButton.isDefaultHomePage') ? `${protocolStr}://home/` : userConfig.get('homePage.homeButton.defaultPage'));
         });
 
         ipcMain.on(`browserView-loadURL-${id}`, (e, args) => {
@@ -381,13 +375,12 @@ module.exports = class MainWindow extends BrowserWindow {
             this.infoWindow.hide();
             this.suggestWindow.hide();
 
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
-                    !pattern.test(url) ? webContents.loadURL(url) : webContents.loadFile(url.replace(/^(file:\/\/\/?)/, ''));
-                }
-            });
+            let webContents = item.view.webContents;
+
+            !pattern.test(url) ? webContents.loadURL(url) : webContents.loadFile(url.replace(/^(file:\/\/\/?)/, ''));
         });
 
         ipcMain.on(`browserView-loadFile-${id}`, (e, args) => {
@@ -1590,12 +1583,12 @@ module.exports = class MainWindow extends BrowserWindow {
 
     getZoom = (id) => {
         if (this.isDestroyed()) return;
-        
+
         const item = this.views.find(item => item.view.webContents.id === id);
         if (item == null) return;
 
         let webContents = item.view.webContents;
-        
+
         console.log(webContents.zoomFactor);
         this.webContents.send(`browserView-zoom-${this.windowId}`, { result: webContents.zoomFactor });
         this.webContents.send(`browserView-zoom-menu-${this.windowId}`, { result: webContents.zoomFactor });

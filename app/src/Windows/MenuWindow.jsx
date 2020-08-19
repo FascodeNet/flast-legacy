@@ -262,12 +262,7 @@ class MenuWindow extends Component {
 		});
 
 		ipcRenderer.on(`menuWindow-${remote.getCurrentWindow().id}`, (e, args) => {
-			this.setState({ windowId: args.windowId, tabId: args.tabId, isOpen: null, url: args.url, zoomLevel: args.zoomLevel });
-			this.forceUpdate();
-		});
-
-		ipcRenderer.on(`menuWindow-userInfo-${remote.getCurrentWindow().id}`, (e, args) => {
-			this.setState({ windowId: args.windowId, tabId: args.tabId, isOpen: 'userInfo', url: args.url, zoomLevel: args.zoomLevel });
+			this.setState({ windowId: args.windowId, tabId: args.tabId, isOpen: args.type ?? null, url: args.url, zoomLevel: args.zoomLevel });
 			this.forceUpdate();
 		});
 
@@ -379,7 +374,7 @@ class MenuWindow extends Component {
 				</Window>
 				<Dialog isOpen={this.state.isOpen === 'userInfo'} isDarkModeOrPrivateMode={this.getTheme() || String(this.state.windowId).startsWith('private')}>
 					<DialogHeader>
-						<DialogHeaderButton src={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkBackIcon : LightBackIcon} size={18} onClick={() => { this.setState({ isOpen: null }); }} />
+						<DialogHeaderButton src={DarkBackIcon} size={18} onClick={() => { this.setState({ isOpen: null }); }} />
 						<DialogHeaderTitle>{lang.window.toolBar.menu.menus.userInfo}</DialogHeaderTitle>
 					</DialogHeader>
 					<DialogContainer style={{ alignItems: 'center', padding: '2rem', paddingTop: '6rem' }} isDarkModeOrPrivateMode={this.getTheme() || String(this.state.windowId).startsWith('private')}>
@@ -389,7 +384,7 @@ class MenuWindow extends Component {
 				</Dialog>
 				<Dialog isOpen={this.state.isOpen === 'app'} isDarkModeOrPrivateMode={this.getTheme() || String(this.state.windowId).startsWith('private')}>
 					<DialogHeader>
-						<DialogHeaderButton src={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkBackIcon : LightBackIcon} size={18} onClick={() => { this.setState({ isOpen: null }); }} />
+						<DialogHeaderButton src={DarkBackIcon} size={18} onClick={() => { this.setState({ isOpen: null }); }} />
 						<DialogHeaderTitle>{lang.window.toolBar.menu.menus.app.name}</DialogHeaderTitle>
 					</DialogHeader>
 					<DialogContainer isDarkModeOrPrivateMode={this.getTheme() || String(this.state.windowId).startsWith('private')}>
@@ -404,7 +399,7 @@ class MenuWindow extends Component {
 				</Dialog>
 				<Dialog isOpen={this.state.isOpen === 'share'} isDarkModeOrPrivateMode={this.getTheme() || String(this.state.windowId).startsWith('private')}>
 					<DialogHeader>
-						<DialogHeaderButton src={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkBackIcon : LightBackIcon} size={18} onClick={() => { this.setState({ isOpen: null }); }} />
+						<DialogHeaderButton src={DarkBackIcon} size={18} onClick={() => { this.setState({ isOpen: null }); }} />
 						<DialogHeaderTitle>{lang.window.toolBar.menu.menus.share.name}</DialogHeaderTitle>
 					</DialogHeader>
 					<DialogContainer isDarkModeOrPrivateMode={this.getTheme() || String(this.state.windowId).startsWith('private')}>
@@ -421,7 +416,7 @@ class MenuWindow extends Component {
 				</Dialog>
 				<Dialog isOpen={this.state.isOpen === 'otherTools'} isDarkModeOrPrivateMode={this.getTheme() || String(this.state.windowId).startsWith('private')}>
 					<DialogHeader>
-						<DialogHeaderButton src={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkBackIcon : LightBackIcon} size={18} onClick={() => { this.setState({ isOpen: null }); }} />
+						<DialogHeaderButton src={DarkBackIcon} size={18} onClick={() => { this.setState({ isOpen: null }); }} />
 						<DialogHeaderTitle>{lang.window.toolBar.menu.menus.otherTools.name}</DialogHeaderTitle>
 					</DialogHeader>
 					<DialogContainer isDarkModeOrPrivateMode={this.getTheme() || String(this.state.windowId).startsWith('private')}>
@@ -433,7 +428,7 @@ class MenuWindow extends Component {
 				</Dialog>
 				<Dialog isOpen={this.state.isOpen === 'help'} isDarkModeOrPrivateMode={this.getTheme() || String(this.state.windowId).startsWith('private')}>
 					<DialogHeader>
-						<DialogHeaderButton src={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkBackIcon : LightBackIcon} size={18} onClick={() => { this.setState({ isOpen: null }); }} />
+						<DialogHeaderButton src={DarkBackIcon} size={18} onClick={() => { this.setState({ isOpen: null }); }} />
 						<DialogHeaderTitle>{lang.window.toolBar.menu.menus.help.name}</DialogHeaderTitle>
 					</DialogHeader>
 					<DialogContainer isDarkModeOrPrivateMode={this.getTheme() || String(this.state.windowId).startsWith('private')}>

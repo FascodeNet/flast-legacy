@@ -476,7 +476,7 @@ class BrowserView extends Component {
 							isShowing={true} isRight={false} isMarginLeft={true} isEnabled={this.state.certificate.type !== 'Search'} title={lang.window.toolBar.addressBar.info.name} onClick={() => { this.state.certificate.type !== 'Search' && this.certificate(); }} />
 
 						<ToolbarDummyTextBox isShowing={!this.state.isShowing} buttonCount={this.getButtonCount}
-							onMouseDown={(e) => { if (e.button === 1) return; this.setState({ isShowing: true }); this.textBoxRef.current.select(); this.textBoxRef.current.focus(); }}>
+							onMouseDown={(e) => { if (e.button === 1) return; this.setState({ isShowing: true }); this.textBoxRef.current.focus(); this.textBoxRef.current.select(); }}>
 							{(() => {
 								const value = decodeURIComponent(this.state.barText);
 								try {
@@ -544,7 +544,7 @@ class BrowserView extends Component {
 						isShowing={true} isRight={true} isMarginLeft={!userConfig.get('adBlock.isEnabled')} isEnabled={true} title={lang.window.toolBar.extensions.feedback} onClick={() => { ipcRenderer.send(`feedbackWindow-open`, {}); }} />
 					<ToolbarDivider isDarkModeOrPrivateMode={this.getTheme()} />
 					<ToolbarButton isDarkModeOrPrivateMode={this.getTheme()} src={this.props.windowId.startsWith('private') ? this.isDarkModeOrPrivateMode.bind(this, LightShieldIcon, DarkShieldIcon) : userConfig.get('profile.avatar') || this.isDarkModeOrPrivateMode.bind(this, LightAccountIcon, DarkAccountIcon)} size={24}
-						isShowing={true} isRight={true} isMarginLeft={true} isEnabled={true} title={!this.props.windowId.startsWith('private') ? userConfig.get('profile.name') ?? lang.main.user : lang.main.privateMode} onClick={() => this.openMenu(true)} />
+						isShowing={true} isRight={true} isMarginLeft={true} isEnabled={true} title={!this.props.windowId.startsWith('private') ? userConfig.get('profile.name') || lang.main.user : lang.main.privateMode} onClick={() => this.openMenu(true)} />
 					<ToolbarButton isDarkModeOrPrivateMode={this.getTheme()} src={this.isDarkModeOrPrivateMode.bind(this, LightMoreIcon, DarkMoreIcon)} size={24}
 						isShowing={true} isRight={true} isMarginLeft={false} isEnabled={true} title={lang.window.toolBar.menu.name} onClick={() => this.openMenu()} />
 				</Toolbar>
