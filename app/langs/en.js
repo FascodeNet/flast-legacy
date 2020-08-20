@@ -104,9 +104,10 @@ module.exports = {
                 permission: {
                     title: '{replace} is requesting permission',
                     description: 'Permission: {replace}',
+                    check: 'Remember this decision',
                     buttons: {
-                        yes: 'Yes',
-                        no: 'No'
+                        allow: 'Allow',
+                        deny: 'Deny'
                     }
                 },
                 textBox: {

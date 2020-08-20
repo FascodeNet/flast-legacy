@@ -103,10 +103,11 @@ module.exports = {
                 },
                 permission: {
                     title: '{replace} が権限を要求しています',
-                    description: '要求内容: {replace}',
+                    description: '権限: {replace}',
+                    check: 'このサイトでは今後も同様に処理する',
                     buttons: {
-                        yes: 'はい',
-                        no: 'いいえ'
+                        allow: '許可',
+                        deny: 'ブロック'
                     }
                 },
                 textBox: {

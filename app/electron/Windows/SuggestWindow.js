@@ -22,10 +22,11 @@ const userConfig = new Config({
 const lang = require(`${app.getAppPath()}/langs/${userConfig.get('language') != undefined ? userConfig.get('language') : 'ja'}.js`);
 
 module.exports = class SuggestWindow extends BrowserWindow {
+
     constructor(appWindow, windowId) {
         super({
             width: 320,
-            height: 218,
+            height: 230,
             frame: false,
             resizable: false,
             transparent: true,
@@ -88,9 +89,9 @@ module.exports = class SuggestWindow extends BrowserWindow {
         const width = bounds.width - ((40 * (userConfig.get('design.isHomeButton') ? 8 : 7)) - (userConfig.get('design.isHomeButton') ? 10 : 4));
 
         this.setBounds({
-            x: isMaximized ? x : x + 1,
+            x: x - 1,
             y: isMaximized ? bounds.y + 70 : bounds.y + 70 + 1,
-            width: isMaximized ? width : width - 2
+            width: width + 2
         });
     }
 }
