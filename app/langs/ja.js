@@ -139,7 +139,7 @@ module.exports = {
                     userInformation: {
                         name: 'ユーザー情報',
                         otherUsers: '他のユーザー',
-                        exitPrivateMode: 'プライベート モードを終了'
+                        endPrivateMode: 'プライベート モードを終了'
                     },
                     newTab: '新しいタブ',
                     newWindow: '新しいウィンドウ',
@@ -187,7 +187,7 @@ module.exports = {
                         feedback: 'フィードバックの送信',
                         about: `${app_name} について`
                     },
-                    close: '閉じる'
+                    quit: '終了'
                 }
             }
         },

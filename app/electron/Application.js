@@ -102,6 +102,8 @@ module.exports = class Application {
             e.sender.send('app-updateStatus', { result: this.updateStatus });
         });
 
+        ipcMain.once('app-quit', (e, args) => app.quit());
+
         this.windowManager = new WindowManager(user.defaultConfig);
 
         if (!singleInstance) {

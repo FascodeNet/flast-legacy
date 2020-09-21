@@ -139,7 +139,7 @@ module.exports = {
                     userInformation: {
                         name: 'User information',
                         otherUsers: 'Other users',
-                        exitPrivateMode: 'Exit Private mode'
+                        endPrivateMode: 'End Private mode'
                     },
                     newTab: 'New tab',
                     newWindow: 'New window',
@@ -187,7 +187,7 @@ module.exports = {
                         feedback: 'Send Feedback',
                         about: `About ${app_name}`
                     },
-                    close: 'Close'
+                    quit: 'Quit'
                 }
             }
         },

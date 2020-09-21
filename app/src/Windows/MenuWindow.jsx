@@ -365,7 +365,7 @@ class MenuWindow extends Component {
 						<span style={{ width: 'auto', marginLeft: 25, display: 'flex', WebkitBoxAlign: 'center', alignItems: 'center', fontFamily: '"Noto Sans", "Noto Sans JP"' }}>{lang.window.toolBar.menu.menus.zoom.name}</span>
 						<div style={{ display: 'flex', marginLeft: 'auto' }}>
 							<StyledButton title={lang.window.toolBar.menu.menus.zoom.zoomIn} onClick={() => { ipcRenderer.send(`browserView-zoomIn-${this.state.windowId}`, { id: this.state.tabId }); this.forceUpdate(); }}
-								style={{ width: 50, height: 32, padding: '4px 16px', display: 'flex', WebkitBoxAlign: 'center', alignItems: 'center', WebkitBoxPack: 'center', justifyContent: 'center', borderLeft: `solid 1px ${this.getTheme() || String(this.state.windowId).startsWith('private') ? '#8b8b8b' : '#e1e1e1'}` }}>
+								style={{ width: 50, height: 32, padding: '4px 16px', display: 'flex', WebkitBoxAlign: 'center', alignItems: 'center', WebkitBoxPack: 'center', justifyContent: 'center', borderLeft: `solid 1px ${this.getTheme() ? '#8b8b8b' : '#e1e1e1'}` }}>
 								<img src={this.getTheme() ? DarkZoomInIcon : LightZoomInIcon} width={22} style={{ verticalAlign: 'middle' }} />
 							</StyledButton>
 							<div style={{ width: 60, height: 32, padding: '4px 16px', display: 'flex', WebkitBoxAlign: 'center', alignItems: 'center', WebkitBoxPack: 'center', justifyContent: 'center', background: 'none', fontFamily: '"Noto Sans", "Noto Sans JP"', fontSize: 14 }}>
@@ -376,7 +376,7 @@ class MenuWindow extends Component {
 								<img src={this.getTheme() ? DarkZoomOutIcon : LightZoomOutIcon} width={22} style={{ verticalAlign: 'middle' }} />
 							</StyledButton>
 							<StyledButton title={lang.window.toolBar.menu.menus.zoom.fullScreen} onClick={() => { this.closeMenu(); ipcRenderer.send(`window-fullScreen-${this.state.windowId}`, {}); }}
-								style={{ width: 50, height: 32, padding: '4px 16px', display: 'flex', WebkitBoxAlign: 'center', alignItems: 'center', WebkitBoxPack: 'center', justifyContent: 'center', borderLeft: `solid 1px ${this.getTheme() || String(this.state.windowId).startsWith('private') ? '#8b8b8b' : '#e1e1e1'}` }}>
+								style={{ width: 50, height: 32, padding: '4px 16px', display: 'flex', WebkitBoxAlign: 'center', alignItems: 'center', WebkitBoxPack: 'center', justifyContent: 'center', borderLeft: `solid 1px ${this.getTheme() ? '#8b8b8b' : '#e1e1e1'}` }}>
 								<img src={this.getTheme() ? DarkFullScreenIcon : LightFullScreenIcon} width={22} style={{ verticalAlign: 'middle' }} />
 							</StyledButton>
 						</div>
@@ -385,13 +385,13 @@ class MenuWindow extends Component {
 					<div style={{ display: 'flex', paddingLeft: 7 }}>
 						<span style={{ width: 'auto', marginLeft: 25, display: 'flex', WebkitBoxAlign: 'center', alignItems: 'center', fontFamily: '"Noto Sans", "Noto Sans JP"' }}>{lang.window.toolBar.menu.menus.edit.name}</span>
 						<div style={{ display: 'flex', marginLeft: 'auto' }}>
-							<StyledButton style={{ width: 70, height: 32, display: 'flex', WebkitBoxAlign: 'center', alignItems: 'center', WebkitBoxPack: 'center', justifyContent: 'center', borderLeft: `solid 1px ${this.getTheme() || String(this.state.windowId).startsWith('private') ? '#8b8b8b' : '#e1e1e1'}` }}>
+							<StyledButton style={{ width: 70, height: 32, display: 'flex', WebkitBoxAlign: 'center', alignItems: 'center', WebkitBoxPack: 'center', justifyContent: 'center', borderLeft: `solid 1px ${this.getTheme() ? '#8b8b8b' : '#e1e1e1'}` }}>
 								{lang.window.toolBar.menu.menus.edit.cut}
 							</StyledButton>
-							<StyledButton style={{ width: 70, height: 32, display: 'flex', WebkitBoxAlign: 'center', alignItems: 'center', WebkitBoxPack: 'center', justifyContent: 'center', borderLeft: `solid 1px ${this.getTheme() || String(this.state.windowId).startsWith('private') ? '#8b8b8b' : '#e1e1e1'}` }}>
+							<StyledButton style={{ width: 70, height: 32, display: 'flex', WebkitBoxAlign: 'center', alignItems: 'center', WebkitBoxPack: 'center', justifyContent: 'center', borderLeft: `solid 1px ${this.getTheme() ? '#8b8b8b' : '#e1e1e1'}` }}>
 								{lang.window.toolBar.menu.menus.edit.copy}
 							</StyledButton>
-							<StyledButton style={{ width: 70, height: 32, display: 'flex', WebkitBoxAlign: 'center', alignItems: 'center', WebkitBoxPack: 'center', justifyContent: 'center', borderLeft: `solid 1px ${this.getTheme() || String(this.state.windowId).startsWith('private') ? '#8b8b8b' : '#e1e1e1'}` }}>
+							<StyledButton style={{ width: 70, height: 32, display: 'flex', WebkitBoxAlign: 'center', alignItems: 'center', WebkitBoxPack: 'center', justifyContent: 'center', borderLeft: `solid 1px ${this.getTheme() ? '#8b8b8b' : '#e1e1e1'}` }}>
 								{lang.window.toolBar.menu.menus.edit.paste}
 							</StyledButton>
 						</div>
@@ -400,17 +400,17 @@ class MenuWindow extends Component {
 					<Button icon={this.getTheme() ? DarkBookmarksIcon : LightBookmarksIcon} title={lang.window.toolBar.menu.menus.bookmarks} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+B`} onClick={() => { this.closeMenu(); this.addTab(`${protocolStr}://bookmarks`, true); }} windowId={this.state.windowId} />
 					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkHistoryIcon : LightHistoryIcon} title={lang.window.toolBar.menu.menus.history} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+H`} onClick={() => { this.closeMenu(); this.addTab(`${protocolStr}://history`, true); }} windowId={this.state.windowId} />
 					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkDownloadsIcon : LightDownloadsIcon} title={lang.window.toolBar.menu.menus.downloads} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+D`} onClick={() => { this.closeMenu(); this.addTab(`${protocolStr}://downloads`, true); }} windowId={this.state.windowId} />
-					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkAppsIcon : LightAppsIcon} title={lang.window.toolBar.menu.menus.app.name} isMoreIcon onClick={() => { this.setState({ isOpen: 'app' }); }} windowId={this.state.windowId} />
+					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkAppsIcon : LightAppsIcon} title={lang.window.toolBar.menu.menus.app.name} isMoreIcon onClick={() => this.setState({ isOpen: 'app' })} windowId={this.state.windowId} />
 					<Divider dark={this.getTheme()} />
 					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkPrintIcon : LightPrintIcon} title={lang.window.toolBar.menu.menus.print} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+P`} onClick={() => { this.closeMenu(); ipcRenderer.send(`browserView-print-${this.state.windowId}`, { id: this.state.tabId }); }} windowId={this.state.windowId} />
 					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkFindIcon : LightFindIcon} title={lang.window.toolBar.menu.menus.find} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+F`} onClick={() => { this.closeMenu(); this.addTab(`${protocolStr}://downloads`, true); }} windowId={this.state.windowId} />
-					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkShareIcon : LightShareIcon} title={lang.window.toolBar.menu.menus.share.name} isMoreIcon onClick={() => { this.setState({ isOpen: 'share' }); }} windowId={this.state.windowId} />
+					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkShareIcon : LightShareIcon} title={lang.window.toolBar.menu.menus.share.name} isMoreIcon onClick={() => this.setState({ isOpen: 'share' })} windowId={this.state.windowId} />
 					<Button title={lang.window.toolBar.menu.menus.otherTools.name} isMoreIcon onClick={() => { this.setState({ isOpen: 'otherTools' }); }} windowId={this.state.windowId} />
 					<Divider dark={this.getTheme()} />
 					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkSettingsIcon : LightSettingsIcon} title={lang.window.toolBar.menu.menus.settings} onClick={() => { this.closeMenu(); this.addTab(`${protocolStr}://settings`, true); }} windowId={this.state.windowId} />
-					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkHelpOutlineIcon : LightHelpOutlineIcon} title={lang.window.toolBar.menu.menus.help.name} isMoreIcon onClick={() => { this.setState({ isOpen: 'help' }); }} windowId={this.state.windowId} />
+					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkHelpOutlineIcon : LightHelpOutlineIcon} title={lang.window.toolBar.menu.menus.help.name} isMoreIcon onClick={() => this.setState({ isOpen: 'help' })} windowId={this.state.windowId} />
 					<Divider dark={this.getTheme()} windowId={this.state.windowId} />
-					<Button icon={this.getTheme() ? DarkCloseIcon : LightCloseIcon} title={lang.window.toolBar.menu.menus.close} accelerator={platform.isDarwin ? 'Cmd+Q' : 'Alt+F4'} windowId={this.state.windowId} />
+					<Button icon={this.getTheme() ? DarkCloseIcon : LightCloseIcon} title={lang.window.toolBar.menu.menus.quit} accelerator={platform.isDarwin ? 'Cmd+Q' : 'Alt+F4'} onClick={() => ipcRenderer.send('app-quit', {})} windowId={this.state.windowId} />
 				</Window>
 				<Dialog isOpen={this.state.isOpen === 'userInfo'} dark={this.getTheme()}>
 					<DialogHeader>
@@ -426,11 +426,11 @@ class MenuWindow extends Component {
 							<Divider dark={this.getTheme()} />
 							{!String(this.state.windowId).startsWith('private') ?
 								<Fragment>
-									<h6>{lang.window.toolBar.menu.menus.userInformation.otherUsers}</h6>
+									<h6 style={{ margin: '5px 8px' }}>{lang.window.toolBar.menu.menus.userInformation.otherUsers}</h6>
 									<DialogButton icon={this.getTheme() ? DarkAccountIcon : LightAccountIcon} title="Guest" windowId={this.state.windowId} />
 								</Fragment>
 								:
-								<DialogButton icon={this.getTheme() ? DarkCloseIcon : LightCloseIcon} title={lang.window.toolBar.menu.menus.userInformation.exitPrivateMode} windowId={this.state.windowId} />
+								<DialogButton icon={this.getTheme() ? DarkCloseIcon : LightCloseIcon} title={lang.window.toolBar.menu.menus.userInformation.endPrivateMode} windowId={this.state.windowId} />
 							}
 						</div>
 					</DialogContainer>
