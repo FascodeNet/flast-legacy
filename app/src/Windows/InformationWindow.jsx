@@ -33,7 +33,7 @@ const Window = styled.div`
   box-sizing: border-box;
 `;
 
-class InfomationWindow extends Component {
+class InformationWindow extends Component {
 
 	constructor(props) {
 		super(props);
@@ -151,4 +151,4 @@ class InfomationWindow extends Component {
 	}
 }
 
-export default InfomationWindow;
+export default InformationWindow;

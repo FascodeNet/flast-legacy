@@ -355,11 +355,9 @@ module.exports = class WindowManager {
             protocol.registerFileProtocol(protocolStr, (request, callback) => {
                 const parsed = parse(request.url);
 
-                return callback({
+                callback({
                     path: path.join(app.getAppPath(), 'pages', parsed.pathname === '/' || !parsed.pathname.match(/(.*)\.([A-z0-9])\w+/g) ? `${parsed.hostname}.html` : `${parsed.hostname}${parsed.pathname}`),
                 });
-            }, (error) => {
-                if (error) console.error(`[Error] Failed to register protocol: ${error}`);
             });
         }
 
@@ -367,11 +365,7 @@ module.exports = class WindowManager {
             protocol.registerFileProtocol(fileProtocolStr, (request, callback) => {
                 const parsed = parse(request.url);
 
-                return callback({
-                    path: path.join(app.getPath('userData'), 'Users', config.get('currentUser'), parsed.pathname),
-                });
-            }, (error) => {
-                if (error) console.error(`[Error] Failed to register protocol: ${error}`);
+                callback({ path: path.join(app.getPath('userData'), 'Users', config.get('currentUser'), parsed.pathname) });
             });
         }
     }
@@ -384,11 +378,9 @@ module.exports = class WindowManager {
             ses.protocol.registerFileProtocol(protocolStr, (request, callback) => {
                 const parsed = parse(request.url);
 
-                return callback({
+                callback({
                     path: path.join(app.getAppPath(), 'pages', parsed.pathname === '/' || !parsed.pathname.match(/(.*)\.([A-z0-9])\w+/g) ? `${parsed.hostname}.html` : `${parsed.hostname}${parsed.pathname}`),
                 });
-            }, (error) => {
-                if (error) console.error(`[Error] Failed to register protocol: ${error}`);
             });
         }
 
@@ -396,11 +388,7 @@ module.exports = class WindowManager {
             ses.protocol.registerFileProtocol(fileProtocolStr, (request, callback) => {
                 const parsed = parse(request.url);
 
-                return callback({
-                    path: path.join(app.getPath('userData'), 'Users', config.get('currentUser'), parsed.pathname),
-                });
-            }, (error) => {
-                if (error) console.error(`[Error] Failed to register protocol: ${error}`);
+                callback({ path: path.join(app.getPath('userData'), 'Users', config.get('currentUser'), parsed.pathname) });
             });
         }
     }

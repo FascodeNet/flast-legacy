@@ -79,13 +79,13 @@ import LightDownloadsIcon from './Resources/light/downloads.svg';
 import DarkSettingsIcon from './Resources/dark/settings.svg';
 import LightSettingsIcon from './Resources/light/settings.svg';
 
+import IncognitoIcon from './Resources/dark/incognito.svg';
+
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/themes/light.css';
 import 'tippy.js/themes/light-border.css';
 import 'tippy.js/themes/material.css';
 import 'tippy.js/themes/translucent.css';
-
-import './Resources/fonts/SourceHanCodeJP-Normal.otf';
 
 import { isURL } from '../Utils/URL';
 import { createRef } from 'react';
@@ -408,19 +408,17 @@ class BrowserView extends Component {
 	}
 
 	getTheme = () => {
-		if (!String(this.props.windowId).startsWith('private')) {
-			const userTheme = String(userConfig.get('design.theme')).toLowerCase();
-			const baseTheme = String(window.require(`${app.getPath('userData')}/Users/${config.get('currentUser')}/Themes/${userConfig.get('design.theme') || 'System'}.json`).theme.base).toLowerCase();
+		if (String(this.props.windowId).startsWith('private')) return true;
 
-			if (userTheme === 'system' || baseTheme === 'system')
-				return nativeTheme.shouldUseDarkColors;
-			else if (userTheme === 'light' || baseTheme === 'light')
-				return false;
-			else if (userTheme === 'dark' || baseTheme === 'dark')
-				return true;
-		} else {
+		const userTheme = String(userConfig.get('design.theme')).toLowerCase();
+		const baseTheme = String(window.require(`${app.getPath('userData')}/Users/${config.get('currentUser')}/Themes/${userConfig.get('design.theme') || 'System'}.json`).theme.base).toLowerCase();
+
+		if (userTheme === 'system' || baseTheme === 'system')
+			return nativeTheme.shouldUseDarkColors;
+		else if (userTheme === 'light' || baseTheme === 'light')
+			return false;
+		else if (userTheme === 'dark' || baseTheme === 'dark')
 			return true;
-		}
 	}
 
 	isDarkModeOrPrivateMode = (lightMode, darkMode) => {
@@ -463,17 +461,18 @@ class BrowserView extends Component {
 		return (
 			<ContentWrapper>
 				<Toolbar backgroundColor={getOrDefault(themeConfig.toolBar.background, !this.getTheme() ? '#f9f9fa' : '#353535')} borderColor={getOrDefault(themeConfig.toolBar.border, !this.getTheme() ? '#0000001f' : '#ffffff14')} isBookmarkBar={isBookmarkBar}>
-					<ToolbarButton isDarkModeOrPrivateMode={this.getTheme()} src={this.state.canGoBack ? this.isDarkModeOrPrivateMode.bind(this, LightBackIcon, DarkBackIcon) : BackInActiveIcon} size={24}
-						isShowing={true} isRight={false} isMarginLeft={true} isEnabled={this.state.canGoBack} title={lang.window.toolBar.back} onClick={() => { this.goBack(); }} />
-					<ToolbarButton isDarkModeOrPrivateMode={this.getTheme()} src={this.state.canGoForward ? this.isDarkModeOrPrivateMode.bind(this, LightForwardIcon, DarkForwardIcon) : ForwardInActiveIcon} size={24}
-						isShowing={true} isRight={false} isMarginLeft={false} isEnabled={this.state.canGoForward} title={lang.window.toolBar.forward} onClick={() => { this.goForward(); }} />
-					<ToolbarButton isDarkModeOrPrivateMode={this.getTheme()} src={!this.state.isLoading ? this.isDarkModeOrPrivateMode.bind(this, LightReloadIcon, DarkReloadIcon) : this.isDarkModeOrPrivateMode.bind(this, LightCloseIcon, DarkCloseIcon)} size={24}
-						isShowing={true} isRight={false} isMarginLeft={false} isEnabled={true} title={!this.state.isLoading ? lang.window.toolBar.reload.reload : lang.window.toolBar.reload.stop} onClick={() => { this.reload(); }} />
-					<ToolbarButton isDarkModeOrPrivateMode={this.getTheme()} src={this.isDarkModeOrPrivateMode.bind(this, LightHomeIcon, DarkHomeIcon)} size={24}
-						isShowing={userConfig.get('design.isHomeButton')} isRight={false} isMarginLeft={false} isEnabled={true} title={lang.window.toolBar.home} onClick={() => { this.goHome(); }} />
+					<ToolbarButton src={this.state.canGoBack ? this.isDarkModeOrPrivateMode.bind(this, LightBackIcon, DarkBackIcon) : BackInActiveIcon}
+						dark={this.getTheme()} disabled={!this.state.canGoBack} toolTip={lang.window.toolBar.back} onClick={() => this.goBack()} />
+					<ToolbarButton src={this.state.canGoForward ? this.isDarkModeOrPrivateMode.bind(this, LightForwardIcon, DarkForwardIcon) : ForwardInActiveIcon}
+						dark={this.getTheme()} disabled={!this.state.canGoForward} toolTip={lang.window.toolBar.back} onClick={() => this.goForward()} />
+					<ToolbarButton src={!this.state.isLoading ? this.isDarkModeOrPrivateMode.bind(this, LightReloadIcon, DarkReloadIcon) : this.isDarkModeOrPrivateMode.bind(this, LightCloseIcon, DarkCloseIcon)}
+						dark={this.getTheme()} toolTip={!this.state.isLoading ? lang.window.toolBar.reload.reload : lang.window.toolBar.reload.stop} onClick={() => this.reload()} />
+					<ToolbarButton src={this.isDarkModeOrPrivateMode.bind(this, LightHomeIcon, DarkHomeIcon)} dark={this.getTheme()}
+						visibility={userConfig.get('design.isHomeButton')} toolTip={lang.window.toolBar.home} onClick={() => this.goHome()} />
+
 					<ToolbarTextBoxWrapper isDarkModeOrPrivateMode={this.getTheme()}>
-						<ToolbarButton isDarkModeOrPrivateMode={this.getTheme()} src={this.getCertificateIcon()} size={18}
-							isShowing={true} isRight={false} isMarginLeft={true} isEnabled={this.state.certificate.type !== 'Search'} title={lang.window.toolBar.addressBar.info.name} onClick={() => { this.state.certificate.type !== 'Search' && this.certificate(); }} />
+						<ToolbarButton src={this.getCertificateIcon()} size={18} dark={this.getTheme()} disabled={this.state.certificate.type === 'Search'}
+							toolTip={lang.window.toolBar.addressBar.info.name} onClick={() => this.state.certificate.type !== 'Search' && this.certificate()} />
 
 						<ToolbarDummyTextBox isShowing={!this.state.isShowing} buttonCount={this.getButtonCount}
 							onMouseDown={(e) => { if (e.button === 1) return; this.setState({ isShowing: true }); this.textBoxRef.current.focus(); this.textBoxRef.current.select(); }}>
@@ -525,28 +524,23 @@ class BrowserView extends Component {
 						<ToolbarTextBox ref={this.textBoxRef} isShowing={this.state.isShowing} buttonCount={this.getButtonCount} value={this.state.certificate.type !== 'Search' && !this.state.barText.startsWith(`${protocolStr}://home`) ? decodeURIComponent(this.state.barText) : null} onKeyDown={this.handleKeyDown} onContextMenu={this.handleContextMenu}
 							onChange={(e) => { this.setState({ barText: e.target.value }); ipcRenderer.send(`window-showSuggest-${this.props.windowId}`, { id: this.props.index, text: e.target.value }); e.currentTarget.focus(); }} onFocus={(e) => { this.setState({ isShowing: true }); e.target.select(); }} onBlur={(e) => this.setState({ isShowing: false })} />
 
-						<ToolbarButton isDarkModeOrPrivateMode={this.getTheme()} src={this.isDarkModeOrPrivateMode.bind(this, LightTranslateIcon, DarkTranslateIcon)} size={18} style={{ right: this.state.zoomLevel != this.state.defaultZoomLevel ? 60 : 30, borderRadius: 0 }}
-							isShowing={!this.state.barText.startsWith(protocolStr)} isRight={true} isMarginLeft={true} isEnabled={true} title={lang.window.toolBar.addressBar.translate} onClick={() => { ipcRenderer.send(`window-translateWindow-${this.props.windowId}`, { url: this.state.viewUrl }); }} />
-
-						<ToolbarButton isDarkModeOrPrivateMode={this.getTheme()} src={this.state.zoomLevel > this.state.defaultZoomLevel ? this.isDarkModeOrPrivateMode.bind(this, LightZoomInIcon, DarkZoomInIcon) : this.isDarkModeOrPrivateMode.bind(this, LightZoomOutIcon, DarkZoomOutIcon)}
-							size={18} style={{ right: !this.state.barText.startsWith(protocolStr) ? 30 : 0, borderRadius: 0 }} isShowing={this.state.zoomLevel != this.state.defaultZoomLevel} isRight={true} isMarginLeft={true} isEnabled={true} title={lang.window.toolBar.addressBar.zoomDefault} onClick={() => { ipcRenderer.send(`browserView-zoomDefault-${this.props.windowId}`, { id: this.props.index }); }} />
-
+						<ToolbarButton src={this.isDarkModeOrPrivateMode.bind(this, LightTranslateIcon, DarkTranslateIcon)} size={18} dark={this.getTheme()} position="right" visibility={!this.state.barText.startsWith(protocolStr)}
+							style={{ right: this.state.zoomLevel != this.state.defaultZoomLevel ? 60 : 30, borderRadius: 0 }} toolTip={lang.window.toolBar.addressBar.translate} onClick={() => ipcRenderer.send(`window-translateWindow-${this.props.windowId}`, { url: this.state.viewUrl })} />
+						<ToolbarButton src={this.state.zoomLevel > this.state.defaultZoomLevel ? this.isDarkModeOrPrivateMode.bind(this, LightZoomInIcon, DarkZoomInIcon) : this.isDarkModeOrPrivateMode.bind(this, LightZoomOutIcon, DarkZoomOutIcon)} size={18} dark={this.getTheme()} position="right"
+							visibility={this.state.zoomLevel != this.state.defaultZoomLevel} style={{ right: !this.state.barText.startsWith(protocolStr) ? 30 : 0, borderRadius: 0 }} toolTip={lang.window.toolBar.addressBar.zoomDefault} onClick={() => ipcRenderer.send(`browserView-zoomDefault-${this.props.windowId}`, { id: this.props.index })} />
 						<Tippy ref={ref => { this.markTooltip = ref; }} content={this.state.isBookmarked ? (this.props.windowId.startsWith('private') ? lang.window.toolBar.addressBar.bookmark.clicked.removePrivate : lang.window.toolBar.addressBar.bookmark.clicked.remove) : (this.props.windowId.startsWith('private') ? lang.window.toolBar.addressBar.bookmark.clicked.addPrivate : lang.window.toolBar.addressBar.bookmark.clicked.add)} theme={this.getTheme() ? 'dark' : 'light'} placement="left" arrow={true} trigger="manual">
-							<ToolbarButton isDarkModeOrPrivateMode={this.getTheme()} src={this.state.isBookmarked ? this.isDarkModeOrPrivateMode.bind(this, LightStarFilledIcon, DarkStarFilledIcon) : this.isDarkModeOrPrivateMode.bind(this, LightStarIcon, DarkStarIcon)} size={18}
-								isShowing={!this.state.barText.startsWith(protocolStr)} isRight={true} isMarginLeft={true} isEnabled={true} title={this.state.isBookmarked ? lang.window.toolBar.addressBar.bookmark.remove : lang.window.toolBar.addressBar.bookmark.add} onClick={() => { this.bookMark(); }} />
+							<ToolbarButton src={this.state.isBookmarked ? this.isDarkModeOrPrivateMode.bind(this, LightStarFilledIcon, DarkStarFilledIcon) : this.isDarkModeOrPrivateMode.bind(this, LightStarIcon, DarkStarIcon)} size={18} dark={this.getTheme()}
+								visibility={!this.state.barText.startsWith(protocolStr)} toolTip={this.state.isBookmarked ? lang.window.toolBar.addressBar.bookmark.remove : lang.window.toolBar.addressBar.bookmark.add} onClick={() => this.bookMark()} />
 						</Tippy>
 					</ToolbarTextBoxWrapper>
-					<ToolbarButton isDarkModeOrPrivateMode={this.getTheme()} src={this.isDarkModeOrPrivateMode.bind(this, LightShieldIcon, DarkShieldIcon)} size={24}
-						isShowing={userConfig.get('adBlock.isEnabled')} isRight={true} isMarginLeft={true} isEnabled={true} title={String(lang.window.toolBar.extensions.adBlock).replace(/{replace}/, this.blockCount)} onClick={() => { this.props.addTab(`${protocolStr}://settings/`); }}>
-						{this.blockCount > 0 && <ToolbarButtonBadge>{this.blockCount}</ToolbarButtonBadge>}
-					</ToolbarButton>
-					<ToolbarButton isDarkModeOrPrivateMode={this.getTheme()} src={this.isDarkModeOrPrivateMode.bind(this, LightFeedbackIcon, DarkFeedbackIcon)} size={24}
-						isShowing={true} isRight={true} isMarginLeft={!userConfig.get('adBlock.isEnabled')} isEnabled={true} title={lang.window.toolBar.extensions.feedback} onClick={() => { ipcRenderer.send(`feedbackWindow-open`, {}); }} />
+					<ToolbarButton src={this.isDarkModeOrPrivateMode.bind(this, LightShieldIcon, DarkShieldIcon)} dark={this.getTheme()} visibility={userConfig.get('adBlock.isEnabled')} badge={this.blockCount}
+						position="right" toolTip={String(lang.window.toolBar.extensions.adBlock).replace('{replace}', this.blockCount)} onClick={() => this.props.addTab(`${protocolStr}://settings/`)} />
+					<ToolbarButton src={this.isDarkModeOrPrivateMode.bind(this, LightFeedbackIcon, DarkFeedbackIcon)} dark={this.getTheme()} position="right"
+						toolTip={lang.window.toolBar.extensions.feedback} onClick={() => ipcRenderer.send(`feedbackWindow-open`, {})} />
 					<ToolbarDivider isDarkModeOrPrivateMode={this.getTheme()} />
-					<ToolbarButton isDarkModeOrPrivateMode={this.getTheme()} src={this.props.windowId.startsWith('private') ? this.isDarkModeOrPrivateMode.bind(this, LightShieldIcon, DarkShieldIcon) : userConfig.get('profile.avatar') || this.isDarkModeOrPrivateMode.bind(this, LightAccountIcon, DarkAccountIcon)} size={24}
-						isShowing={true} isRight={true} isMarginLeft={true} isEnabled={true} title={!this.props.windowId.startsWith('private') ? userConfig.get('profile.name') || lang.main.user : lang.main.privateMode} onClick={() => this.openMenu(true)} />
-					<ToolbarButton isDarkModeOrPrivateMode={this.getTheme()} src={this.isDarkModeOrPrivateMode.bind(this, LightMoreIcon, DarkMoreIcon)} size={24}
-						isShowing={true} isRight={true} isMarginLeft={false} isEnabled={true} title={lang.window.toolBar.menu.name} onClick={() => this.openMenu()} />
+					<ToolbarButton src={this.props.windowId.startsWith('private') ? IncognitoIcon : userConfig.get('profile.avatar') || this.isDarkModeOrPrivateMode.bind(this, LightAccountIcon, DarkAccountIcon)} style={{ border: this.props.windowId.startsWith('private') ? 'solid 1px #72767d' : 'none' }}
+						dark={this.getTheme()} position="right" text={this.props.windowId.startsWith('private') ? lang.main.privateMode : ''} toolTip={!this.props.windowId.startsWith('private') ? userConfig.get('profile.name') || lang.main.user : lang.main.privateMode} onClick={() => this.openMenu(true)} />
+					<ToolbarButton src={this.isDarkModeOrPrivateMode.bind(this, LightMoreIcon, DarkMoreIcon)} dark={this.getTheme()} position="right" toolTip={lang.window.toolBar.menu.name} onClick={() => this.openMenu()} />
 				</Toolbar>
 				<BookmarkBar isDarkModeOrPrivateMode={this.getTheme()} isShowing={isBookmarkBar}>
 					<BookmarkBarComponent bookmarks={this.state.bookMarks} windowId={this.props.windowId} isDarkModeOrPrivateMode={this.getTheme()} />

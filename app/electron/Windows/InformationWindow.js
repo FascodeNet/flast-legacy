@@ -21,7 +21,7 @@ const userConfig = new Config({
 
 const lang = require(`${app.getAppPath()}/langs/${userConfig.get('language') != undefined ? userConfig.get('language') : 'ja'}.js`);
 
-module.exports = class InfomationWindow extends BrowserWindow {
+module.exports = class InformationWindow extends BrowserWindow {
 
     constructor(appWindow) {
         super({

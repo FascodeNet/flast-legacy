@@ -136,7 +136,11 @@ module.exports = {
             menu: {
                 name: 'Menu',
                 menus: {
-                    userInfo: 'User Infomation',
+                    userInformation: {
+                        name: 'User information',
+                        otherUsers: 'Other users',
+                        exitPrivateMode: 'Exit Private mode'
+                    },
                     newTab: 'New tab',
                     newWindow: 'New window',
                     openPrivateWindow: 'Open Private window',

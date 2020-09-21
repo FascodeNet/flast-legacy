@@ -6,7 +6,7 @@ const os = require('os');
 const https = require('https');
 const http = require('http');
 
-const InfomationWindow = require('./InfomationWindow');
+const InformationWindow = require('./InformationWindow');
 const PermissionWindow = require('./PermissionWindow');
 const MenuWindow = require('./MenuWindow');
 const AuthenticationWindow = require('./AuthenticationWindow');
@@ -81,7 +81,7 @@ module.exports = class MainWindow extends BrowserWindow {
 
         userConfig.get('window.isMaximized') && this.maximize();
 
-        this.infoWindow = new InfomationWindow(this);
+        this.infoWindow = new InformationWindow(this);
         this.permissionWindow = new PermissionWindow(this, this.windowId);
         this.menuWindow = new MenuWindow(this);
 
@@ -112,12 +112,9 @@ module.exports = class MainWindow extends BrowserWindow {
 
         this.once('ready-to-show', () => this.show());
 
-        const id2 = this.id;
         this.on('closed', () => {
             application.currentWindow = null;
-
             this.views.map((item) => item.view.destroy());
-            application.windows.delete(id2);
         });
         this.on('close', (e) => {
             userConfig.set('window.isMaximized', this.isMaximized());
@@ -260,7 +257,7 @@ module.exports = class MainWindow extends BrowserWindow {
             if (!this.menuWindow.isVisible()) {
                 const item = this.views.find(item => item.view.webContents.id === args.id);
                 if (item == null) return;
-    
+
                 let webContents = item.view.webContents;
 
                 this.menuWindow.showWindow(args.id, args.url, webContents.zoomFactor, args.openUserInfo);
@@ -601,9 +598,9 @@ module.exports = class MainWindow extends BrowserWindow {
                 });
             } else {
                 view.setBounds({
-                    x: userConfig.get('design.isCustomTitlebar') && !platform.isDarwin ? 1 : 0,
+                    x: !this.isMaximized() && userConfig.get('design.isCustomTitlebar') && !platform.isDarwin ? 1 : 0,
                     y: this.isMaximized() ? this.getHeight(true, height) : userConfig.get('design.isCustomTitlebar') && !platform.isDarwin ? this.getHeight(true, height) + 1 : this.getHeight(true, height),
-                    width: userConfig.get('design.isCustomTitlebar') && !platform.isDarwin ? width - 2 : width,
+                    width: !this.isMaximized() && userConfig.get('design.isCustomTitlebar') && !platform.isDarwin ? width - 2 : width,
                     height: this.isMaximized() ? this.getHeight(false, height) : (userConfig.get('design.isCustomTitlebar') && !platform.isDarwin ? (this.getHeight(false, height)) - 2 : this.getHeight(false, height)),
                 });
             }
@@ -898,8 +895,6 @@ module.exports = class MainWindow extends BrowserWindow {
 
         view.webContents.on('page-title-updated', (e, title) => {
             if (view.isDestroyed()) return;
-
-            console.log('update Title');
 
             if (!String(this.windowId).startsWith('private') && !(view.webContents.getURL().startsWith(`${protocolStr}://`) || view.webContents.getURL().startsWith(`${fileProtocolStr}://`)))
                 this.data.updateHistory(title, view.webContents.getURL());
@@ -2075,11 +2070,9 @@ module.exports = class MainWindow extends BrowserWindow {
             ses.protocol.registerFileProtocol(protocolStr, (request, callback) => {
                 const parsed = parse(request.url);
 
-                return callback({
+                callback({
                     path: join(app.getAppPath(), 'pages', parsed.pathname === '/' || !parsed.pathname.match(/(.*)\.([A-z0-9])\w+/g) ? `${parsed.hostname}.html` : `${parsed.hostname}${parsed.pathname}`),
                 });
-            }, (error) => {
-                if (error) console.error(`[Error] Failed to register protocol: ${error}`);
             });
         }
 
@@ -2087,9 +2080,7 @@ module.exports = class MainWindow extends BrowserWindow {
             ses.protocol.registerFileProtocol(fileProtocolStr, (request, callback) => {
                 const parsed = parse(request.url);
 
-                return callback({ path: join(app.getPath('userData'), 'Users', config.get('currentUser'), parsed.pathname) });
-            }, (error) => {
-                if (error) console.error(`[Error] Failed to register protocol: ${error}`);
+                callback({ path: join(app.getPath('userData'), 'Users', config.get('currentUser'), parsed.pathname) });
             });
         }
     }

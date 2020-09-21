@@ -24,7 +24,7 @@ const lang = require(`${app.getAppPath()}/langs/${userConfig.get('language') != 
 const width = 330;
 const height = 510;
 
-module.exports = class InfomationWindow extends BrowserWindow {
+module.exports = class MenuWindow extends BrowserWindow {
     constructor(appWindow, windowId, tabId) {
         super({
             width,

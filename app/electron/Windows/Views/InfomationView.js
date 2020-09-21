@@ -24,7 +24,7 @@ const lang = require(`${app.getAppPath()}/langs/${userConfig.get('language') != 
 const width = 320;
 const height = 160;
 
-module.exports = class InfomationView extends BrowserView {
+module.exports = class InformationView extends BrowserView {
 
     constructor(appWindow, windowId) {
         super({
