@@ -14,6 +14,7 @@ import DarkTabIcon from './Resources/dark/tab.svg';
 import LightTabIcon from './Resources/light/tab.svg';
 import DarkWindowIcon from './Resources/dark/window.svg';
 import LightWindowIcon from './Resources/light/window.svg';
+import IncognitoIcon from './Resources/incognito.svg';
 import DarkIncognitoIcon from './Resources/dark/incognito.svg';
 import LightIncognitoIcon from './Resources/light/incognito.svg';
 import DarkZoomInIcon from './Resources/dark/zoom_in.svg';
@@ -352,10 +353,12 @@ class MenuWindow extends Component {
 	}
 
 	render() {
+		const isPrivate = this.state.windowId.startsWith('private');
+		
 		return (
 			<div style={{ boxSizing: 'border-box', width: '100%', height: platform.isWin32 && systemPreferences.isAeroGlassEnabled() || platform.isDarwin ? 'auto' : '100%' }}>
 				<Window dark={this.getTheme()}>
-					<Button icon={this.getTheme() ? DarkAccountIcon : LightAccountIcon} isMoreIcon title={userConfig.get('profile.name') ? `${userConfig.get('profile.name')} (${lang.window.toolBar.menu.menus.userInformation.name})` : lang.window.toolBar.menu.menus.userInformation.name} onClick={() => { this.setState({ isOpen: 'userInfo' }); }} windowId={this.state.windowId} />
+					<Button icon={!isPrivate ? (this.getTheme() ? DarkAccountIcon : LightAccountIcon) : IncognitoIcon} isMoreIcon title={!isPrivate ? (userConfig.get('profile.name') ? `${userConfig.get('profile.name')} (${lang.window.toolBar.menu.menus.userInformation.name})` : lang.window.toolBar.menu.menus.userInformation.name) : `${lang.main.privateMode} (${lang.window.toolBar.menu.menus.userInformation.name})`} onClick={() => { this.setState({ isOpen: 'userInfo' }); }} windowId={this.state.windowId} />
 					<Divider dark={this.getTheme()} />
 					<Button icon={this.getTheme() ? DarkTabIcon : LightTabIcon} title={lang.window.toolBar.menu.menus.newTab} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+T`} onClick={() => { this.closeMenu(); this.addTab(); }} />
 					<Button icon={this.getTheme() ? DarkWindowIcon : LightWindowIcon} title={lang.window.toolBar.menu.menus.newWindow} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+N`} onClick={() => { this.closeMenu(); ipcRenderer.send(`window-add`, { isPrivate: false }); }} windowId={this.state.windowId} />
@@ -398,17 +401,17 @@ class MenuWindow extends Component {
 					</div>
 					<Divider style={{ marginTop: 0 }} dark={this.getTheme()} />
 					<Button icon={this.getTheme() ? DarkBookmarksIcon : LightBookmarksIcon} title={lang.window.toolBar.menu.menus.bookmarks} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+B`} onClick={() => { this.closeMenu(); this.addTab(`${protocolStr}://bookmarks`, true); }} windowId={this.state.windowId} />
-					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkHistoryIcon : LightHistoryIcon} title={lang.window.toolBar.menu.menus.history} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+H`} onClick={() => { this.closeMenu(); this.addTab(`${protocolStr}://history`, true); }} windowId={this.state.windowId} />
-					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkDownloadsIcon : LightDownloadsIcon} title={lang.window.toolBar.menu.menus.downloads} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+D`} onClick={() => { this.closeMenu(); this.addTab(`${protocolStr}://downloads`, true); }} windowId={this.state.windowId} />
-					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkAppsIcon : LightAppsIcon} title={lang.window.toolBar.menu.menus.app.name} isMoreIcon onClick={() => this.setState({ isOpen: 'app' })} windowId={this.state.windowId} />
+					<Button icon={this.getTheme() ? DarkHistoryIcon : LightHistoryIcon} title={lang.window.toolBar.menu.menus.history} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+H`} onClick={() => { this.closeMenu(); this.addTab(`${protocolStr}://history`, true); }} windowId={this.state.windowId} />
+					<Button icon={this.getTheme() ? DarkDownloadsIcon : LightDownloadsIcon} title={lang.window.toolBar.menu.menus.downloads} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+D`} onClick={() => { this.closeMenu(); this.addTab(`${protocolStr}://downloads`, true); }} windowId={this.state.windowId} />
+					<Button icon={this.getTheme() ? DarkAppsIcon : LightAppsIcon} title={lang.window.toolBar.menu.menus.app.name} isMoreIcon onClick={() => this.setState({ isOpen: 'app' })} windowId={this.state.windowId} />
 					<Divider dark={this.getTheme()} />
-					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkPrintIcon : LightPrintIcon} title={lang.window.toolBar.menu.menus.print} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+P`} onClick={() => { this.closeMenu(); ipcRenderer.send(`browserView-print-${this.state.windowId}`, { id: this.state.tabId }); }} windowId={this.state.windowId} />
-					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkFindIcon : LightFindIcon} title={lang.window.toolBar.menu.menus.find} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+F`} onClick={() => { this.closeMenu(); this.addTab(`${protocolStr}://downloads`, true); }} windowId={this.state.windowId} />
-					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkShareIcon : LightShareIcon} title={lang.window.toolBar.menu.menus.share.name} isMoreIcon onClick={() => this.setState({ isOpen: 'share' })} windowId={this.state.windowId} />
+					<Button icon={this.getTheme() ? DarkPrintIcon : LightPrintIcon} title={lang.window.toolBar.menu.menus.print} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+P`} onClick={() => { this.closeMenu(); ipcRenderer.send(`browserView-print-${this.state.windowId}`, { id: this.state.tabId }); }} windowId={this.state.windowId} />
+					<Button icon={this.getTheme() ? DarkFindIcon : LightFindIcon} title={lang.window.toolBar.menu.menus.find} accelerator={`${platform.isDarwin ? 'Cmd' : 'Ctrl'}+F`} onClick={() => { this.closeMenu(); this.addTab(`${protocolStr}://downloads`, true); }} windowId={this.state.windowId} />
+					<Button icon={this.getTheme() ? DarkShareIcon : LightShareIcon} title={lang.window.toolBar.menu.menus.share.name} isMoreIcon onClick={() => this.setState({ isOpen: 'share' })} windowId={this.state.windowId} />
 					<Button title={lang.window.toolBar.menu.menus.otherTools.name} isMoreIcon onClick={() => { this.setState({ isOpen: 'otherTools' }); }} windowId={this.state.windowId} />
 					<Divider dark={this.getTheme()} />
-					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkSettingsIcon : LightSettingsIcon} title={lang.window.toolBar.menu.menus.settings} onClick={() => { this.closeMenu(); this.addTab(`${protocolStr}://settings`, true); }} windowId={this.state.windowId} />
-					<Button icon={this.getTheme() || String(this.state.windowId).startsWith('private') ? DarkHelpOutlineIcon : LightHelpOutlineIcon} title={lang.window.toolBar.menu.menus.help.name} isMoreIcon onClick={() => this.setState({ isOpen: 'help' })} windowId={this.state.windowId} />
+					<Button icon={this.getTheme() ? DarkSettingsIcon : LightSettingsIcon} title={lang.window.toolBar.menu.menus.settings} onClick={() => { this.closeMenu(); this.addTab(`${protocolStr}://settings`, true); }} windowId={this.state.windowId} />
+					<Button icon={this.getTheme() ? DarkHelpOutlineIcon : LightHelpOutlineIcon} title={lang.window.toolBar.menu.menus.help.name} isMoreIcon onClick={() => this.setState({ isOpen: 'help' })} windowId={this.state.windowId} />
 					<Divider dark={this.getTheme()} windowId={this.state.windowId} />
 					<Button icon={this.getTheme() ? DarkCloseIcon : LightCloseIcon} title={lang.window.toolBar.menu.menus.quit} accelerator={platform.isDarwin ? 'Cmd+Q' : 'Alt+F4'} onClick={() => ipcRenderer.send('app-quit', {})} windowId={this.state.windowId} />
 				</Window>
@@ -419,12 +422,12 @@ class MenuWindow extends Component {
 					</DialogHeader>
 					<DialogContainer dark={this.getTheme()}>
 						<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '2rem', paddingTop: '6rem' }}>
-							<img src={userConfig.get('profile.avatar')} style={{ borderRadius: '50%', width: 150, height: 150, objectFit: 'cover' }} />
-							<h4 style={{ marginBottom: 0 }}>{userConfig.get('profile.name') || lang.main.user}</h4>
+							<img src={!isPrivate ? userConfig.get('profile.avatar') : IncognitoIcon} style={{ width: 150, height: 150, borderRadius: '50%', objectFit: 'cover', backgroundColor: !isPrivate ? 'transparent' : '#35363a' }} />
+							<h4 style={{ marginBottom: 0 }}>{!isPrivate ? (userConfig.get('profile.name') || lang.main.user) : lang.main.privateMode}</h4>
 						</div>
 						<div style={{ marginTop: 'auto' }}>
 							<Divider dark={this.getTheme()} />
-							{!String(this.state.windowId).startsWith('private') ?
+							{!isPrivate ?
 								<Fragment>
 									<h6 style={{ margin: '5px 8px' }}>{lang.window.toolBar.menu.menus.userInformation.otherUsers}</h6>
 									<DialogButton icon={this.getTheme() ? DarkAccountIcon : LightAccountIcon} title="Guest" windowId={this.state.windowId} />

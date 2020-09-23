@@ -112,9 +112,9 @@ export const ToolbarButton = (props) => {
   return (
     <ToolbarButtonContainer visibility={props.visibility ?? true} disabled={props.disabled ?? false} text={isTextVisibility} style={props.style}
       position={props.position ?? 'left'} dark={props.dark ?? false} title={props.toolTip ?? ''} onClick={props.onClick ?? null}>
-      <ToolbarButtonImage src={props.src} size={props.size ?? 24} />
-      <ToolbarButtonText visibility={isTextVisibility} dark={props.dark ?? false}>{props.text}</ToolbarButtonText>
-      {props.badge !== undefined && <ToolbarButtonBadge>{props.badge}</ToolbarButtonBadge>}
+      <ToolbarButtonImage src={props.src} size={props.size ?? 24} style={props.imageStyle} />
+      <ToolbarButtonText visibility={isTextVisibility} dark={props.dark ?? false} style={props.textStyle}>{props.text}</ToolbarButtonText>
+      {props.badge !== undefined && <ToolbarButtonBadge style={props.badgeStyle}>{props.badge}</ToolbarButtonBadge>}
     </ToolbarButtonContainer>
   );
 };

@@ -154,14 +154,7 @@ module.exports = class Application {
                 this.windowManager.addWindow();
             });
 
-            /*
-            app.on('before-quit', async () => {
-                await this.windowManager.updateDatabases();
-            });
-            */
-
             app.on('window-all-closed', () => {
-                console.log('[Debug] 🔥 `window-all-closed`');
                 if (process.platform !== 'darwin')
                     app.quit();
             });

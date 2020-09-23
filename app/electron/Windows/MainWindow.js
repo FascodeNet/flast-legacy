@@ -164,6 +164,29 @@ module.exports = class MainWindow extends BrowserWindow {
         this.on('enter-html-full-screen', this.resizeWindows);
         this.on('leave-html-full-screen', this.resizeWindows);
 
+        /*
+        this.on('app-command', (e, cmd) => {
+            if (this.getBrowserViews()[0] == undefined) return;
+            const view = this.getBrowserViews()[0];
+
+            const url = view.webContents.getURL();
+
+            console.log(cmd);
+
+            if (cmd === 'browser-backward' && view.webContents.canGoBack()) {
+                view.webContents.goBack();
+
+                if (url.startsWith(`${protocolStr}://error`) && view.webContents.canGoBack())
+                    view.webContents.goBack();
+            } else if (cmd === 'browser-forward' && view.webContents.canGoForward()) {
+                view.webContents.goForward();
+
+                if (url.startsWith(`${protocolStr}://error`) && view.webContents.canGoForward())
+                    view.webContents.goForward();
+            }
+        });
+        */
+
         this.registerListeners(this.windowId);
     }
 
@@ -295,15 +318,16 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`tab-fixed-${id}`, (e, args) => {
-            this.views.filter((item, i) => {
-                if (item.view.webContents.id === args.id) {
-                    let newViews = this.views.concat();
-                    newViews[i].isFixed = args.result;
-                    this.views = newViews;
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
-                    this.getViews(this.windowId);
-                }
-            });
+            const index = this.views.findIndex(item => item.view.webContents.id === args.id);
+
+            let newViews = this.views.concat();
+            newViews[index].isFixed = args.result;
+            this.views = newViews;
+
+            this.getViews(this.windowId);
         });
 
         ipcMain.on(`browserView-goBack-${id}`, (e, args) => {
@@ -673,25 +697,20 @@ module.exports = class MainWindow extends BrowserWindow {
         this.addTab(url, isActive);
     }
 
-    removeView = () => {
-        this.removeView(this.tabId);
-    }
+    removeView = (id = this.tabId) => {
+        const item = this.views.find(item => item.view.webContents.id === id);
+        if (item == null) return;
 
-    removeView = (id) => {
-        this.views.filter((item, i) => {
-            if (item.view.webContents.id == id) {
-                const index = i;
+        const index = this.views.findIndex(item => item.view.webContents.id === id);
 
-                if (index + 1 < this.views.length) {
-                    this.selectView2(index + 1);
-                } else if (index - 1 >= 0) {
-                    this.selectView2(index - 1);
-                }
+        if (index + 1 < this.views.length) {
+            this.__selectView(index + 1);
+        } else if (index - 1 >= 0) {
+            this.__selectView(index - 1);
+        }
 
-                this.views[index].view.destroy();
-                this.views.splice(index, 1);
-            }
-        });
+        this.views[index].view.destroy();
+        this.views.splice(index, 1);
     }
 
     selectView = (id) => {
@@ -709,7 +728,7 @@ module.exports = class MainWindow extends BrowserWindow {
         this.fixBounds();
     }
 
-    selectView2 = (i) => {
+    __selectView = (i) => {
         const item = this.views[i];
 
         this.tabId = item.id;
@@ -1728,7 +1747,14 @@ module.exports = class MainWindow extends BrowserWindow {
                     {
                         accelerator: 'CmdOrCtrl+W',
                         label: lang.main.file.closeTab,
-                        click: () => this.removeView()
+                        click: () => {
+                            if (this.views.length > 1) {
+                                this.removeView();
+                                this.getViews();
+                            } else {
+                                this.close();
+                            }
+                        }
                     },
                     {
                         accelerator: 'CmdOrCtrl+Shift+W',
