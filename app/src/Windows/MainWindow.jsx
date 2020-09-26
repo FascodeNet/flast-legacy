@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { findDOMNode } from 'react-dom';
 import { WindowsControl } from 'react-windows-controls';
 import Tippy from '@tippyjs/react';
-import Sortable from 'sortablejs';
+import Sortable, { create } from 'sortablejs';
 import { parse, format } from 'url';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
 
@@ -121,14 +121,15 @@ class BookmarkBarComponent extends Component {
 	}
 
 	render() {
+		const buttonSize = 26;
 		return (
 			<Fragment>
 				{this.props.bookmarks
 					.filter((item, i) => item.parentId == undefined || item.parentId == null || item.parentId == '')
 					.sort((a, b) => a.isFolder < b.isFolder ? 1 : -1)
 					.map((item, v) => (
-						<BookmarkBarButton key={v} isDarkModeOrPrivateMode={this.props.isDarkModeOrPrivateMode} isEnabled={true} size={16} onClick={() => { }}
-							title={item.title} src={!item.isFolder ? (String(item.url).startsWith(`${protocolStr}://`) || String(item.url).startsWith(`${fileProtocolStr}://`) ? `${protocolStr}://resources/icons/public.svg` : (item.favicon ? item.favicon : `http://www.google.com/s2/favicons?domain=${new URL(item.url).origin}`)) : `${protocolStr}://resources/icons/folder_close.png`} />
+						<ToolbarButton key={v} dark={this.props.isDarkModeOrPrivateMode} size={16} style={{ minWidth: buttonSize, width: buttonSize, height: buttonSize, margin: 3 }}
+							toolTip={item.title} src={!item.isFolder ? (String(item.url).startsWith(`${protocolStr}://`) || String(item.url).startsWith(`${fileProtocolStr}://`) ? `${protocolStr}://resources/icons/public.svg` : (item.favicon ? item.favicon : `http://www.google.com/s2/favicons?domain=${new URL(item.url).origin}`)) : `${protocolStr}://resources/icons/folder_close.png`} />
 					))
 				}
 			</Fragment>
@@ -144,6 +145,7 @@ class BrowserView extends Component {
 		this.blockCount = 0;
 
 		this.state = {
+			isVisibleBookmarkToolTip: false,
 			barText: '',
 			findText: '',
 			previousText: '',
@@ -162,6 +164,7 @@ class BrowserView extends Component {
 		};
 
 		this.textBoxRef = createRef();
+		this.bookMarkToolTipRef = createRef();
 	}
 
 	componentDidMount() {
@@ -394,11 +397,9 @@ class BrowserView extends Component {
 	}
 
 	bookMark = () => {
-		const toolTip = findDOMNode(this.markTooltip)._tippy;
-		toolTip.show();
-		setTimeout(() => {
-			toolTip.hide();
-		}, 1250);
+		this.setState({ isVisibleBookmarkToolTip: true });
+		setTimeout(() => this.setState({ isVisibleBookmarkToolTip: false }), 1250);
+
 		if (this.state.isBookmarked)
 			ipcRenderer.send(`data-bookmark-remove-${this.props.windowId}`, { id: this.props.index, isPrivate: this.props.windowId.startsWith('private') });
 		else
@@ -532,7 +533,8 @@ class BrowserView extends Component {
 							style={{ right: this.state.zoomLevel != this.state.defaultZoomLevel ? 60 : 30, borderRadius: 0 }} toolTip={lang.window.toolBar.addressBar.translate} onClick={() => ipcRenderer.send(`window-translateWindow-${this.props.windowId}`, { url: this.state.viewUrl })} />
 						<ToolbarButton src={this.state.zoomLevel > this.state.defaultZoomLevel ? this.isDarkModeOrPrivateMode.bind(this, LightZoomInIcon, DarkZoomInIcon) : this.isDarkModeOrPrivateMode.bind(this, LightZoomOutIcon, DarkZoomOutIcon)} size={18} dark={this.getTheme()} position="right"
 							visibility={this.state.zoomLevel != this.state.defaultZoomLevel} style={{ right: !this.state.barText.startsWith(protocolStr) ? 30 : 0, borderRadius: 0 }} toolTip={lang.window.toolBar.addressBar.zoomDefault} onClick={() => ipcRenderer.send(`browserView-zoomDefault-${this.props.windowId}`, { id: this.props.index })} />
-						<Tippy ref={ref => { this.markTooltip = ref; }} content={this.state.isBookmarked ? (isPrivate ? lang.window.toolBar.addressBar.bookmark.clicked.removePrivate : lang.window.toolBar.addressBar.bookmark.clicked.remove) : (isPrivate ? lang.window.toolBar.addressBar.bookmark.clicked.addPrivate : lang.window.toolBar.addressBar.bookmark.clicked.add)} theme={this.getTheme() ? 'dark' : 'light'} placement="left" arrow={true} trigger="manual">
+						<Tippy content={this.state.isBookmarked ? (isPrivate ? lang.window.toolBar.addressBar.bookmark.clicked.removePrivate : lang.window.toolBar.addressBar.bookmark.clicked.remove) : (isPrivate ? lang.window.toolBar.addressBar.bookmark.clicked.addPrivate : lang.window.toolBar.addressBar.bookmark.clicked.add)}
+							theme={this.getTheme() ? 'dark' : 'light'} placement="left" arrow={true} visible={this.state.isVisibleBookmarkToolTip} onClickOutside={() => this.setState({ isVisibleBookmarkToolTip: false })}>
 							<ToolbarButton src={this.state.isBookmarked ? this.isDarkModeOrPrivateMode.bind(this, LightStarFilledIcon, DarkStarFilledIcon) : this.isDarkModeOrPrivateMode.bind(this, LightStarIcon, DarkStarIcon)} size={18} dark={this.getTheme()}
 								visibility={!this.state.barText.startsWith(protocolStr)} toolTip={this.state.isBookmarked ? lang.window.toolBar.addressBar.bookmark.remove : lang.window.toolBar.addressBar.bookmark.add} onClick={() => this.bookMark()} />
 						</Tippy>
@@ -790,11 +792,12 @@ class MainWindow extends Component {
 					<TabsContainer isCustomTitlebar={userConfig.get('design.isCustomTitlebar')} isWindowsOrLinux={platform.isWin32 || (!platform.isWin32 && !platform.isDarwin)}>
 						<TabContainer ref={ref => { this.tabContainer = ref; }}>
 							{this.state.tabs.map((tab, i) => {
-								const isActive = tab.id === this.state.current
+								const isActive = tab.id === this.state.current;
+								
 								return (
 									<Tab key={i} backgroundColor={getOrDefault(themeConfig.tab.background, !this.getTheme() ? '#f9f9fa' : '#353535')} foregroundColor={getOrDefault(themeConfig.tab.foreground, !this.getTheme() ? 'black' : 'white')} inActiveForegroundColor={this.getForegroundColor(themeConfig.window.foreground) === '#000000' ? 'white' : 'black'}
 										isDarkModeOrPrivateMode={this.getTheme()} isMaximized={remote.getCurrentWindow().isMaximized() || remote.getCurrentWindow().isFullScreen()} isActive={isActive} isFixed={tab.isFixed} accentColor={tab.color}
-										className={tab.isFixed ? 'fixed-tab' : ''} onClick={() => { if (tab.id !== this.state.current) { this.setState({ current: tab.id }); ipcRenderer.send(`tab-select-${this.props.match.params.windowId}`, { id: tab.id }); } this.forceUpdate(); }} onContextMenu={this.handleContextMenu.bind(this, tab.id)} title={tab.title}>
+										className={tab.isFixed ? 'fixed-tab' : ''} onClick={() => { if (tab.id !== this.state.current) { this.setState({ current: tab.id }); ipcRenderer.send(`tab-select-${this.props.match.params.windowId}`, { id: tab.id }); } this.forceUpdate(); }} onContextMenu={this.handleContextMenu.bind(this, tab.id)} title={`${tab.title} \u000d― ${tab.url !== '' ? (tab.url.startsWith(`${protocolStr}://`) || tab.url.startsWith(`${fileProtocolStr}://`) ? new URL(tab.url).origin : new URL(tab.url).hostname) : tab.url}`}>
 										<TabIcon src={this.getTabIcon(tab.id, tab.url, tab.icon)} width={18} height={18} onError={this.handleTabIconError} />
 										<TabTitle isShowing={tab.isAudioStatus !== 0} isFixed={tab.isFixed}>{tab.title}</TabTitle>
 										<TabStatusIcon isActive={isActive} isFixed={tab.isFixed} isRight={true} src={tab.isAudioStatus !== 0 ? (isActive ? this.isDarkModeOrPrivateMode.bind(this, tab.isAudioStatus === 1 ? LightAudioIcon : LightAudioMuteIcon, tab.isAudioStatus === 1 ? DarkAudioIcon : DarkAudioMuteIcon) : (this.getForegroundColor(themeConfig.window.foreground) === '#000000' ? (tab.isAudioStatus === 1 ? DarkAudioIcon : DarkAudioMuteIcon) : (tab.isAudioStatus === 1 ? LightAudioIcon : LightAudioMuteIcon))) : undefined} isShowing={tab.isAudioStatus !== 0} size={14} title={tab.isAudioStatus !== 0 ? (tab.isAudioStatus === 1 ? lang.window.titleBar.tab.media.audioPlaying : lang.window.titleBar.tab.media.audioMuted) : ''} />

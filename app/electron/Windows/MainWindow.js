@@ -2064,15 +2064,34 @@ module.exports = class MainWindow extends BrowserWindow {
         ses.setUserAgent(`${ses.getUserAgent().replace(name, app_name).replace(/ Electron\/[A-z0-9-\.]*/g, '')}${isPrivate ? ' PrivMode' : ''}`);
 
         ses.setPermissionRequestHandler(async (webContents, permission, callback, details) => {
-            const url = parse(webContents.getURL());
-            const origin = `${url.protocol}//${url.hostname}`;
+            const { protocol, hostname, port } = new URL(webContents.getURL());
+
+            const getPortString = () => {
+                switch (protocol) {
+                    case 'ftp:':
+                        return `:${port === '' ? '21' : port}`;
+                    case 'file:':
+                        return '';
+                    case 'gopher:':
+                        return `:${port === '' ? '70' : port}`;
+                    case 'http:':
+                    case 'ws:':
+                        return `:${port === '' ? '80' : port}`;
+                    case 'https:':
+                    case 'wss:':
+                        return `:${port === '' ? '443' : port}`;
+                    default: return port;
+                }
+            }
+
+            const origin = `${protocol}//${hostname}${getPortString()}`;
 
             const type = this.getPermission(permission === 'media' ? details.mediaTypes.toString() : permission);
             const userConfigPath = `pageSettings.permissions.${type}`;
 
             const pageSettings = this.data.getPageSettings(origin, type);
 
-            console.log(type, userConfigPath, pageSettings);
+            console.log(origin, type, userConfigPath, pageSettings);
             if (pageSettings !== undefined) {
                 return callback(pageSettings.result);
             } else {

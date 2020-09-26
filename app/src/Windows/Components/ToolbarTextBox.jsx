@@ -10,13 +10,14 @@ export const ToolbarTextBoxWrapper = styled.div`
   height: 30px;
   margin: 5px;
   padding: 0px;
-  flex-grow: 4;
   position: relative;
+  flex-grow: 4;
   font-size: 14.5px;
-  background-color: #${props => !props.isDarkModeOrPrivateMode ? 'eeeeee' : '252525'};
-  border-radius: ${radiusSize}px;
   outline: none;
+  transition: 0.4s;
+  background-color: #${props => !props.isDarkModeOrPrivateMode ? 'eeeeee' : '252525'};
   color: ${props => !props.isDarkModeOrPrivateMode ? 'black' : 'white'};
+  border-radius: ${radiusSize}px;
   box-sizing: border-box;
 
   &:hover, &:focus, &:focus-within {

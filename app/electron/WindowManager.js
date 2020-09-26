@@ -101,6 +101,18 @@ module.exports = class WindowManager {
             downloadFilters();
         });
 
+        ipcMain.on('data-pageSettings-get', (e, args) => {
+            e.sender.send('data-pageSettings-get', { data: this.data.getPageSettingsForOrigin(args.origin) })
+        });
+
+        ipcMain.on('data-pageSettings-update', (e, args) => {
+            this.data.updatePageSettings(args.origin, args.type, args.result);
+        });
+
+        ipcMain.on('data-pageSettings-remove', (e, args) => {
+            this.data.removePageSettings(args.origin, args.type);
+        });
+
         ipcMain.on('data-permissions-allow', (e, args) => {
             e.sender.send('data-permissions-allow', { data: this.data.getAllowPageSettingsForType(args.type) })
         });

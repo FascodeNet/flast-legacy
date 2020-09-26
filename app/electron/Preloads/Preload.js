@@ -637,6 +637,46 @@ global.setSearchEngine = (name) => {
 // ====================================================================== //
 */
 
+
+global.getPageSettings = (origin) => new Promise((resolve) => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    ipcRenderer.send('data-pageSettings-get', { origin });
+    ipcRenderer.once('data-pageSettings-get', (e, args) => resolve(args.data));
+});
+
+global.updatePageSettings = (origin, type, result) => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    ipcRenderer.send('data-pageSettings-update', { origin, type, result });
+};
+
+global.removePageSettings = (origin, type) => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    ipcRenderer.send('data-pageSettings-remove', { origin, type });
+};
+
+
+global.getAllowPermissions = (type) => new Promise((resolve) => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    ipcRenderer.send('data-permissions-allow', { type });
+    ipcRenderer.once('data-permissions-allow', (e, args) => {
+        resolve(args.data);
+    });
+});
+
+global.getDenyPermissions = (type) => new Promise((resolve) => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    ipcRenderer.send('data-permissions-deny', { type });
+    ipcRenderer.once('data-permissions-deny', (e, args) => {
+        resolve(args.data);
+    });
+});
+
+
 global.getLocation = () => {
     if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
 
@@ -732,25 +772,6 @@ global.setOpenExternal = (v) => {
 
     userConfig.set('pageSettings.permissions.openExternal', v);
 }
-
-
-global.getAllowPermissions = (type) => new Promise((resolve) => {
-    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
-
-    ipcRenderer.send('data-permissions-allow', { type });
-    ipcRenderer.once('data-permissions-allow', (e, args) => {
-        resolve(args.data);
-    });
-});
-
-global.getDenyPermissions = (type) => new Promise((resolve) => {
-    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
-
-    ipcRenderer.send('data-permissions-deny', { type });
-    ipcRenderer.once('data-permissions-deny', (e, args) => {
-        resolve(args.data);
-    });
-});
 
 
 global.getZoomLevel = () => {

@@ -483,9 +483,12 @@ module.exports = {
                 pageSettings: {
                     title: 'ページ設定',
                     controls: {
+                        useDefault: 'デフォルト設定を利用',
                         check: '毎回確認する',
                         allow: '許可',
                         deny: 'ブロック',
+
+                        viewDatas: 'すべてのサイトに保存されている権限を表示',
 
                         default: 'デフォルト',
 
@@ -498,6 +501,8 @@ module.exports = {
                         pointer: 'マウスカーソルの固定',
                         fullScreen: '全画面表示',
                         openExternal: '外部リンクを開く',
+
+                        noDatas: 'サイトが追加されていません。',
 
                         content: 'コンテンツ',
                         zoomLevels: {
