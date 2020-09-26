@@ -1669,17 +1669,35 @@ module.exports = class MainWindow extends BrowserWindow {
     getMainMenu = (windowManager) => {
         return Menu.buildFromTemplate([
             ...(platform.isDarwin ? [{
-                label: app.name,
+                label: lang.main.app.label,
                 submenu: [
-                    { role: 'about' },
+                    {
+                        label: lang.main.app.about,
+                        role: 'about'
+                    },
                     { type: 'separator' },
-                    { role: 'services' },
+                    {
+                        label: lang.main.app.services,
+                        role: 'services'
+                    },
                     { type: 'separator' },
-                    { role: 'hide' },
-                    { role: 'hideothers' },
-                    { role: 'unhide' },
+                    {
+                        label: lang.main.app.hide,
+                        role: 'hide'
+                    },
+                    {
+                        label: lang.main.app.hideOthers,
+                        role: 'hideothers'
+                    },
+                    {
+                        label: lang.main.app.showAll,
+                        role: 'unhide'
+                    },
                     { type: 'separator' },
-                    { role: 'quit' }
+                    {
+                        label: lang.main.app.quit,
+                        role: 'quit'
+                    }
                 ]
             }] : []),
             {
@@ -1739,8 +1757,8 @@ module.exports = class MainWindow extends BrowserWindow {
                         label: lang.main.file.settings,
                         accelerator: 'CmdOrCtrl+,',
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
-                            this.addTabOrLoadUrl(this.getBrowserViews()[0], `${protocolStr}://settings/`, true);
+                            if (this.getBrowserView() == undefined) return;
+                            this.addTabOrLoadUrl(this.getBrowserView(), `${protocolStr}://settings/`, true);
                         }
                     },
                     { type: 'separator' },
@@ -1776,7 +1794,7 @@ module.exports = class MainWindow extends BrowserWindow {
                     {
                         label: lang.main.edit.redo,
                         icon: !platform.isDarwin ? `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/redo.png` : null,
-                        accelerator: 'CmdOrCtrl+Y',
+                        accelerator: !platform.isDarwin ? 'Ctrl+Y' : 'Cmd+Shift+Z',
                         role: 'redo'
                     },
                     { type: 'separator' },
@@ -1822,7 +1840,7 @@ module.exports = class MainWindow extends BrowserWindow {
                     {
                         label: lang.main.view.fullScreen,
                         icon: !platform.isDarwin ? `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/fullscreen${this.isFullScreen() ? '_exit' : ''}.png` : null,
-                        accelerator: 'F11',
+                        accelerator: !platform.isDarwin ? 'F11' : 'Cmd+Ctrl+F',
                         click: () => {
                             this.setFullScreen(!this.isFullScreen());
                             this.fixBounds();
@@ -1962,7 +1980,7 @@ module.exports = class MainWindow extends BrowserWindow {
                     { type: 'separator' },
                     {
                         label: lang.main.navigate.home,
-                        accelerator: 'Alt+Home',
+                        accelerator: !platform.isDarwin ? 'Alt+Home' : 'Cmd+Shift+H',
                         click: () => {
                             if (this.getBrowserViews()[0] == undefined) return;
                             const view = this.getBrowserViews()[0];
@@ -1974,7 +1992,7 @@ module.exports = class MainWindow extends BrowserWindow {
                     {
                         label: lang.main.navigate.bookmarks,
                         icon: !platform.isDarwin ? `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/bookmarks.png` : null,
-                        accelerator: !platform.isDarwin ? 'Ctrl+B' : 'Cmd+Alt+B',
+                        accelerator: !platform.isDarwin ? 'Ctrl+B' : 'Cmd+B',
                         click: () => {
                             if (this.getBrowserViews()[0] == undefined) return;
                             this.addTabOrLoadUrl(this.getBrowserViews()[0], `${protocolStr}://bookmarks/`, true);
@@ -1983,7 +2001,7 @@ module.exports = class MainWindow extends BrowserWindow {
                     {
                         label: lang.main.navigate.history,
                         icon: !platform.isDarwin ? `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/history.png` : null,
-                        accelerator: !platform.isDarwin ? 'Ctrl+B' : 'Cmd+Alt+H',
+                        accelerator: !platform.isDarwin ? 'Ctrl+H' : 'Cmd+Y',
                         click: () => {
                             if (this.getBrowserViews()[0] == undefined) return;
                             this.addTabOrLoadUrl(this.getBrowserViews()[0], `${protocolStr}://history/`, true);
@@ -1992,7 +2010,7 @@ module.exports = class MainWindow extends BrowserWindow {
                     {
                         label: lang.main.navigate.downloads,
                         icon: !platform.isDarwin ? `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/download.png` : null,
-                        accelerator: !platform.isDarwin ? 'Ctrl+B' : 'Cmd+Alt+D',
+                        accelerator: !platform.isDarwin ? 'Ctrl+B' : 'Cmd+D',
                         click: () => {
                             if (this.getBrowserViews()[0] == undefined) return;
                             this.addTabOrLoadUrl(this.getBrowserViews()[0], `${protocolStr}://downloads/`, true);

@@ -1,3 +1,5 @@
+const { app } = require("electron");
+
 const { app_name } = require(`${__dirname}/../package.json`);
 const protocolStr = 'flast';
 const fileProtocolStr = `${protocolStr}-file`;
@@ -9,6 +11,15 @@ module.exports = {
         doNotShowAgein: '今後表示しない',
         user: 'ユーザー',
         privateMode: 'プライベートモード',
+        app: {
+            label: app_name,
+            about: `${app_name} について`,
+            services: 'サービス',
+            hide: `${app_name} を非表示にする`,
+            hideOthers: 'その他を非表示にする',
+            showAll: 'すべて表示',
+            quit: `${app_name} を終了`
+        },
         file: {
             label: 'ファイル',
             newTab: '新しいタブ',

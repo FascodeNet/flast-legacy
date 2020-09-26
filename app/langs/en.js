@@ -9,6 +9,15 @@ module.exports = {
         doNotShowAgein: 'Do not show again.',
         user: 'User',
         privateMode: 'Private mode',
+        app: {
+            label: app_name,
+            about: `About ${app_name}`,
+            services: 'Services',
+            hide: `Hide ${app_name}`,
+            hideOthers: 'Hide Others',
+            showAll: 'Show All',
+            quit: `About ${app_name}`
+        },
         file: {
             label: 'File',
             newTab: 'New tab',
