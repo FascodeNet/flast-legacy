@@ -9,13 +9,3 @@ export const BookmarkBar = styled.div`
   border-bottom: solid 1px ${props => !props.isDarkModeOrPrivateMode ? '#e1e1e1' : '#8b8b8b'};
   box-sizing: border-box;
 `;
-
-const buttonSize = 26;
-export const BookmarkBarButton = styled(ToolbarButton)`
-  width: ${buttonSize}px;
-  height: ${buttonSize}px;
-  margin: 3px;
-  padding: 0px;
-  display: initial;
-  float: initial;
-`;

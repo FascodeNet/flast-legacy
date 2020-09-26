@@ -25,7 +25,7 @@ module.exports = class User {
     constructor() {
         this.defaultConfig = {
             profile: {
-                avatar: '',
+                avatar: 'flast://resources/icons/icon.png',
                 name: ''
             },
             adBlock: {

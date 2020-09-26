@@ -32,6 +32,7 @@ const Window = styled.div`
   border-radius: ${platform.isWin32 && systemPreferences.isAeroGlassEnabled() || platform.isDarwin ? 2 : 0}px;
   border: ${platform.isWin32 && systemPreferences.isAeroGlassEnabled() || platform.isDarwin ? 'none' : (props => !props.isDarkModeOrPrivateMode ? 'solid 1px #e1e1e1' : 'solid 1px #8b8b8b')};
   background-color: ${props => !props.isDarkModeOrPrivateMode ? '#f9f9fa' : '#353535'};
+  font-family: 'Noto Sans', 'Noto Sans JP';
   color: ${props => !props.isDarkModeOrPrivateMode ? '#353535' : '#f9f9fa'};
   box-shadow: ${platform.isWin32 && systemPreferences.isAeroGlassEnabled() || platform.isDarwin ? '0px 2px 4px rgba(0, 0, 0, 0.16), 0px 2px 4px rgba(0, 0, 0, 0.23)' : 'none'};
   box-sizing: border-box;
@@ -41,6 +42,7 @@ class PermissionWindow extends Component {
 
 	constructor(props) {
 		super(props);
+
 		this.state = {
 			permission: null,
 			url: '',
@@ -55,6 +57,8 @@ class PermissionWindow extends Component {
 		ipcRenderer.on(`permissionWindow-${this.props.match.params.windowId}`, (e, args) => {
 			this.setState({ permission: args.permission, url: args.url });
 		});
+
+		this.permission = lang.window.toolBar.addressBar.permission;
 	}
 
 	getTheme = () => {
@@ -85,7 +89,7 @@ class PermissionWindow extends Component {
 		return (
 			<Window isDarkModeOrPrivateMode={this.getTheme() || String(this.props.match.params.windowId).startsWith('private')} onMouseEnter={(e) => { remote.getCurrentWindow().setIgnoreMouseEvents(false); }} onMouseLeave={(e) => { remote.getCurrentWindow().setIgnoreMouseEvents(true, { forward: true }); }}>
 				<div style={{ display: 'flex', justifyContent: 'space-around' }}>
-					<h5 style={{ margin: 0 }}>{String(lang.window.toolBar.addressBar.permission.title).replace(/{replace}/, (parse(this.state.url).protocol === `${protocolStr}:` ? `${parse(this.state.url).protocol}//${parse(this.state.url).hostname}` : parse(this.state.url).hostname))}</h5>
+					<h5 style={{ margin: 0 }}>{String(this.permission.title).replace(/{replace}/, (parse(this.state.url).protocol === `${protocolStr}:` ? `${parse(this.state.url).protocol}//${parse(this.state.url).hostname}` : parse(this.state.url).hostname))}</h5>
 					<Button style={{ margin: 0, width: 20, height: 20, marginLeft: 'auto', border: 'none' }} onClick={() => ipcRenderer.send(`permissionWindow-close-${this.props.match.params.windowId}`, {})}>
 						<svg name="TitleBarClose" width="12" height="12" viewBox="0 0 12 12" fill={this.getTheme() || String(this.props.match.params.windowId).startsWith('private') ? '#f9f9fa' : '#353535'}>
 							<polygon fill-rule="evenodd" points="11 1.576 6.583 6 11 10.424 10.424 11 6 6.583 1.576 11 1 10.424 5.417 6 1 1.576 1.576 1 6 5.417 10.424 1" />
@@ -93,12 +97,12 @@ class PermissionWindow extends Component {
 					</Button>
 				</div>
 				<p style={{ margin: 0, marginBottom: 7 }}>
-					{String(lang.window.toolBar.addressBar.permission.description).replace(/{replace}/, this.state.permission)}
+					{String(this.permission.description).replace(/{replace}/, this.state.permission)}
 				</p>
-				<Checkbox text="Test" isChecked={this.state.isChecked} onChange={(e) => { this.setState({ isChecked: !this.state.isChecked }); }} />
-				<div style={{ display: 'flex', justifyContent: 'space-around' }}>
-					<Button onClick={() => this.sendResult(true)}>{lang.window.toolBar.addressBar.permission.buttons.yes}</Button>
-					<Button onClick={() => this.sendResult(false)}>{lang.window.toolBar.addressBar.permission.buttons.no}</Button>
+				<Checkbox text={this.permission.check} isChecked={this.state.isChecked} onChange={(e) => { this.setState({ isChecked: !this.state.isChecked }); }} />
+				<div style={{ marginTop: 6, display: 'flex', justifyContent: 'space-around' }}>
+					<Button onClick={() => this.sendResult(true)} style={{ width: '100%', marginRight: 3 }}>{this.permission.buttons.allow}</Button>
+					<Button onClick={() => this.sendResult(false)} style={{ width: '100%', marginLeft: 3 }}>{this.permission.buttons.deny}</Button>
 				</div>
 			</Window>
 		);

@@ -101,6 +101,18 @@ module.exports = class WindowManager {
             downloadFilters();
         });
 
+        ipcMain.on('data-pageSettings-get', (e, args) => {
+            e.sender.send('data-pageSettings-get', { data: this.data.getPageSettingsForOrigin(args.origin) })
+        });
+
+        ipcMain.on('data-pageSettings-update', (e, args) => {
+            this.data.updatePageSettings(args.origin, args.type, args.result);
+        });
+
+        ipcMain.on('data-pageSettings-remove', (e, args) => {
+            this.data.removePageSettings(args.origin, args.type);
+        });
+
         ipcMain.on('data-permissions-allow', (e, args) => {
             e.sender.send('data-permissions-allow', { data: this.data.getAllowPageSettingsForType(args.type) })
         });
@@ -355,11 +367,9 @@ module.exports = class WindowManager {
             protocol.registerFileProtocol(protocolStr, (request, callback) => {
                 const parsed = parse(request.url);
 
-                return callback({
+                callback({
                     path: path.join(app.getAppPath(), 'pages', parsed.pathname === '/' || !parsed.pathname.match(/(.*)\.([A-z0-9])\w+/g) ? `${parsed.hostname}.html` : `${parsed.hostname}${parsed.pathname}`),
                 });
-            }, (error) => {
-                if (error) console.error(`[Error] Failed to register protocol: ${error}`);
             });
         }
 
@@ -367,11 +377,7 @@ module.exports = class WindowManager {
             protocol.registerFileProtocol(fileProtocolStr, (request, callback) => {
                 const parsed = parse(request.url);
 
-                return callback({
-                    path: path.join(app.getPath('userData'), 'Users', config.get('currentUser'), parsed.pathname),
-                });
-            }, (error) => {
-                if (error) console.error(`[Error] Failed to register protocol: ${error}`);
+                callback({ path: path.join(app.getPath('userData'), 'Users', config.get('currentUser'), parsed.pathname) });
             });
         }
     }
@@ -384,11 +390,9 @@ module.exports = class WindowManager {
             ses.protocol.registerFileProtocol(protocolStr, (request, callback) => {
                 const parsed = parse(request.url);
 
-                return callback({
+                callback({
                     path: path.join(app.getAppPath(), 'pages', parsed.pathname === '/' || !parsed.pathname.match(/(.*)\.([A-z0-9])\w+/g) ? `${parsed.hostname}.html` : `${parsed.hostname}${parsed.pathname}`),
                 });
-            }, (error) => {
-                if (error) console.error(`[Error] Failed to register protocol: ${error}`);
             });
         }
 
@@ -396,11 +400,7 @@ module.exports = class WindowManager {
             ses.protocol.registerFileProtocol(fileProtocolStr, (request, callback) => {
                 const parsed = parse(request.url);
 
-                return callback({
-                    path: path.join(app.getPath('userData'), 'Users', config.get('currentUser'), parsed.pathname),
-                });
-            }, (error) => {
-                if (error) console.error(`[Error] Failed to register protocol: ${error}`);
+                callback({ path: path.join(app.getPath('userData'), 'Users', config.get('currentUser'), parsed.pathname) });
             });
         }
     }

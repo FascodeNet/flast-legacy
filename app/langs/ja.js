@@ -103,10 +103,11 @@ module.exports = {
                 },
                 permission: {
                     title: '{replace} が権限を要求しています',
-                    description: '要求内容: {replace}',
+                    description: '権限: {replace}',
+                    check: 'このサイトでは今後も同様に処理する',
                     buttons: {
-                        yes: 'はい',
-                        no: 'いいえ'
+                        allow: '許可',
+                        deny: 'ブロック'
                     }
                 },
                 textBox: {
@@ -135,7 +136,11 @@ module.exports = {
             menu: {
                 name: 'メニュー',
                 menus: {
-                    userInfo: 'ユーザー情報',
+                    userInformation: {
+                        name: 'ユーザー情報',
+                        otherUsers: '他のユーザー',
+                        endPrivateMode: 'プライベート モードを終了'
+                    },
                     newTab: '新しいタブ',
                     newWindow: '新しいウィンドウ',
                     openPrivateWindow: 'プライベート ウィンドウを開く',
@@ -182,7 +187,7 @@ module.exports = {
                         feedback: 'フィードバックの送信',
                         about: `${app_name} について`
                     },
-                    close: '閉じる'
+                    quit: '終了'
                 }
             }
         },
@@ -478,9 +483,12 @@ module.exports = {
                 pageSettings: {
                     title: 'ページ設定',
                     controls: {
+                        useDefault: 'デフォルト設定を利用',
                         check: '毎回確認する',
                         allow: '許可',
                         deny: 'ブロック',
+
+                        viewDatas: 'すべてのサイトに保存されている権限を表示',
 
                         default: 'デフォルト',
 
@@ -493,6 +501,8 @@ module.exports = {
                         pointer: 'マウスカーソルの固定',
                         fullScreen: '全画面表示',
                         openExternal: '外部リンクを開く',
+
+                        noDatas: 'サイトが追加されていません。',
 
                         content: 'コンテンツ',
                         zoomLevels: {

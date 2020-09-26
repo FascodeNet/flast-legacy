@@ -22,6 +22,7 @@ const userConfig = new Config({
 const lang = require(`${app.getAppPath()}/langs/${userConfig.get('language') != undefined ? userConfig.get('language') : 'ja'}.js`);
 
 module.exports = class PermissionWindow extends BrowserWindow {
+
     constructor(appWindow, windowId) {
         super({
             width: 320,

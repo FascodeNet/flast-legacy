@@ -102,6 +102,8 @@ module.exports = class Application {
             e.sender.send('app-updateStatus', { result: this.updateStatus });
         });
 
+        ipcMain.once('app-quit', (e, args) => app.quit());
+
         this.windowManager = new WindowManager(user.defaultConfig);
 
         if (!singleInstance) {
@@ -151,12 +153,6 @@ module.exports = class Application {
 
                 this.windowManager.addWindow();
             });
-
-            /*
-            app.on('before-quit', async () => {
-                await this.windowManager.updateDatabases();
-            });
-            */
 
             app.on('window-all-closed', () => {
                 if (process.platform !== 'darwin')

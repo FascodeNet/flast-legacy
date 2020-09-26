@@ -8,6 +8,7 @@ import MaterialTable from 'material-table';
 
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
+import queryString from 'query-string';
 import { withStyles } from '@material-ui/core/styles';
 
 import Container from '@material-ui/core/Container';
@@ -185,6 +186,32 @@ const styles = (theme) => ({
             margin: '0 8px',
             padding: '2px 8px !important'
         }
+    },
+    itemPermissionButtonRoot: {
+        height: 60,
+        margin: '0 8px',
+        padding: '0px !important',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    itemPermissionButtonContainer: {
+        width: '100%',
+        height: '100%',
+        margin: 0,
+        padding: '8px 8px !important',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        [theme.breakpoints.up('md')]: {
+            padding: '2px 8px !important'
+        }
+    },
+    itemPermissionButtonDivider: {
+        margin: '10px 0'
+    },
+    itemPermissionButtonRemove: {
+        margin: 6
     },
     itemRoot: {
         height: 60,
@@ -1392,6 +1419,14 @@ class SettingsPageSettingsPage extends Component {
                                 <Typography variant="h6" className={classes.paperHeading}>{this.section.title}</Typography>
                                 <Divider />
                             </Grid>
+                            <Grid item xs={12} className={classes.itemButtonRoot} component={ButtonBase} onClick={(e) => this.props.history.push(`/pageSettings/permission/${type}`)}>
+                                <div className={classes.itemTitleRoot}>
+                                    <Typography variant="body2" style={{ marginLeft: getTheme().spacing(4) }}>{this.section.controls.viewDatas}</Typography>
+                                </div>
+                                <div className={classes.itemControlRoot}>
+                                    <ChevronRightIcon />
+                                </div>
+                            </Grid>
                             <Grid item xs={12} className={classes.paperHeadingRoot}>
                                 <Typography variant="subtitle2" className={classes.paperHeading}>{this.section.controls.permission}</Typography>
                                 <Divider />
@@ -1435,7 +1470,6 @@ class SettingsPageSettingsPage extends Component {
                                     <ChevronRightIcon />
                                 </div>
                             </Grid>
-                            <Grid item xs={12} className={classes.itemDivider}><Divider /></Grid>
                         </Grid>
                     </Paper>
                 </Container>
@@ -1445,6 +1479,208 @@ class SettingsPageSettingsPage extends Component {
 }
 
 SettingsPageSettingsPage.propTypes = {
+    classes: PropTypes.object.isRequired,
+};
+
+class SettingsPageSettingsDetailPage extends Component {
+
+    constructor(props) {
+        super(props);
+
+        const parsed = queryString.parse(this.props.location.search)
+
+        this.state = {
+            isDialogOpened: false,
+
+            origin: parsed.origin,
+
+            // Page Settings
+            isLocation: -1,
+            isCamera: -1,
+            isMic: -1,
+            isNotifications: -1,
+            isMidi: -1,
+            isPointer: -1,
+            isFullScreen: -1,
+            isOpenExternal: -1,
+
+            zoomLevel: 1
+        };
+
+        this.settings = window.getLanguageFile().internalPages.settings;
+        this.section = this.settings.sections.pageSettings;
+    }
+
+    componentDidMount = () => {
+        const permissions = ['location', 'camera', 'mic', 'notifications', 'midi', 'pointer', 'fullScreen', 'openExternal'];
+
+        window.getPageSettings(this.state.origin).then((items) => {
+            items.filter(item => permissions.includes(item.type)).forEach((item, i) => {
+                this.setPermissionValue(item.type, item.result ? 1 : 0);
+            });
+        });
+
+        document.title = `${this.settings.title} » ${this.section.title}`;
+    }
+
+    handleDialogClose = () => {
+        this.setState({ isDialogOpened: false });
+    }
+
+
+    setPermissionValue = (type, value) => {
+        switch (type) {
+            case 'location': {
+                this.setState({ isLocation: value });
+                break;
+            }
+            case 'camera': {
+                this.setState({ isCamera: value });
+                break;
+            }
+            case 'mic': {
+                this.setState({ isMic: value });
+                break;
+            }
+            case 'notifications': {
+                this.setState({ isNotifications: value });
+                break;
+            }
+            case 'midi': {
+                this.setState({ isMidi: value });
+                break;
+            }
+            case 'pointer': {
+                this.setState({ isPointer: value });
+                break;
+            }
+            case 'fullScreen': {
+                this.setState({ isFullScreen: value });
+                break;
+            }
+            case 'openExternal': {
+                this.setState({ isOpenExternal: value });
+                break;
+            }
+            default: break;
+        }
+    }
+
+
+    render() {
+        const { classes } = this.props;
+
+        const permissions = ['location', 'camera', 'mic', 'notifications', 'midi', 'pointer', 'fullScreen', 'openExternal'];
+
+        const PermissionIcon = (props) => {
+            switch (props.type) {
+                case 'location': return (<LocationIcon />)
+                case 'camera': return (<CameraIcon />)
+                case 'mic': return (<MicIcon />)
+                case 'notifications': return (<NotificationsIcon />)
+                case 'midi': return (<RadioIcon />)
+                case 'pointer': return (<LockIcon />)
+                case 'fullScreen': return (<FullScreenIcon />)
+                case 'openExternal': return (<LaunchIcon />)
+                default: return (null)
+            }
+        }
+
+        const getPermissionValue = (type) => {
+            switch (type) {
+                case 'location': return this.state.isLocation
+                case 'camera': return this.state.isCamera
+                case 'mic': return this.state.isMic
+                case 'notifications': return this.state.isNotifications
+                case 'midi': return this.state.isMidi
+                case 'pointer': return this.state.isPointer
+                case 'fullScreen': return this.state.isFullScreen
+                case 'openExternal': return this.state.isOpenExternal
+                default: break;
+            }
+        }
+
+        return (
+            <NavigationBar title={this.settings.title} buttons={[<Button color="inherit" onClick={() => { window.openInEditor(); }}>テキストエディタで開く</Button>]}>
+                <Container fixed className={classes.containerRoot}>
+                    <Paper className={classes.paperRoot}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <div style={{ display: 'flex', alignItems: 'center', height: 30, marginBottom: 4 }}>
+                                    <IconButton size="small" component={RouterLink} to="/pageSettings">
+                                        <ArrowBackIcon />
+                                    </IconButton>
+                                    <Typography variant="h6" style={{
+                                        userSelect: 'none',
+                                        paddingLeft: getTheme().spacing(1),
+                                        paddingRight: getTheme().spacing(0.5)
+                                    }}>
+                                        <Typography variant="inherit" color="textSecondary">{this.section.title} / </Typography>
+                                        {this.state.origin}
+                                    </Typography>
+                                </div>
+                                <Divider />
+                            </Grid>
+                            <Grid item xs={12} className={classes.paperHeadingRoot}>
+                                <Typography variant="subtitle2" className={classes.paperHeading}>{this.section.controls.permission}</Typography>
+                                <Divider />
+                            </Grid>
+                            {permissions.map((type, v) => (
+                                <Fragment key={v}>
+                                    <Grid item xs={12} className={classes.itemButtonRoot}>
+                                        <div className={classes.itemTitleRoot}>
+                                            <PermissionIcon type={type} />
+                                            <Typography variant="body2" style={{ marginLeft: getTheme().spacing(1) }}>{this.section.controls[type]}</Typography>
+                                        </div>
+                                        <div className={classes.itemControlRoot}>
+                                            <div className={classes.formRoot}>
+                                                <FormControl variant="outlined" margin="dense" className={classes.formControl} style={{ minWidth: 210 }}>
+                                                    <Select
+                                                        value={getPermissionValue(type)}
+                                                        onChange={(e) => {
+                                                            const value = e.target.value;
+                                                            this.setPermissionValue(type, value);
+                                                            value !== -1 ? window.updatePageSettings(this.state.origin, type, value) : window.removePageSettings(this.state.origin, type);
+                                                        }}
+                                                        inputProps={{
+                                                            name: this.state.type,
+                                                            id: this.state.type
+                                                        }}
+                                                    >
+                                                        <MenuItem value={-1}>{this.section.controls.useDefault}</MenuItem>
+                                                        <MenuItem value={1}>{this.section.controls.allow}</MenuItem>
+                                                        <MenuItem value={0}>{this.section.controls.deny}</MenuItem>
+                                                    </Select>
+                                                </FormControl>
+                                            </div>
+                                        </div>
+                                    </Grid>
+                                    {v < permissions.length - 1 && <Grid item xs={12} className={classes.itemDivider}><Divider /></Grid>}
+                                </Fragment>
+                            ))}
+                            <Grid item xs={12} className={classes.paperHeadingRoot}>
+                                <Typography variant="subtitle2" className={classes.paperHeading}>{this.section.controls.content}</Typography>
+                                <Divider />
+                            </Grid>
+                            <Grid item xs={12} className={classes.itemButtonRoot} component={ButtonBase} onClick={(e) => this.props.history.push('/pageSettings/content/zoomLevels')}>
+                                <div className={classes.itemTitleRoot}>
+                                    <SearchIcon />
+                                    <Typography variant="body2" style={{ marginLeft: 10 }}>{this.section.controls.zoomLevels.name}</Typography>
+                                </div>
+                                <div className={classes.itemControlRoot}>
+                                    <Typography variant="body2" color="textSecondary" style={{ marginRight: getTheme().spacing(1) }}>{this.state.zoomLevel * 100}%</Typography>
+                                    <ChevronRightIcon />
+                                </div>
+                            </Grid>
+                        </Grid>
+                    </Paper>
+                </Container>
+            </NavigationBar>
+        );
+    }
+}
+
+SettingsPageSettingsDetailPage.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
@@ -1518,6 +1754,11 @@ class SettingsPageSettingsPermissionPage extends Component {
         document.title = `${this.settings.title} » ${this.section.title}`;
     }
 
+    handleDialogClose = () => {
+        this.setState({ isDialogOpened: false });
+    }
+
+
     isPermission = (type = this.state.type) => {
         return type !== undefined && ['location', 'camera', 'mic', 'notifications', 'midi', 'pointer', 'fullScreen', 'openExternal'].includes(type)
     }
@@ -1560,9 +1801,6 @@ class SettingsPageSettingsPermissionPage extends Component {
         }
     }
 
-    handleDialogClose = () => {
-        this.setState({ isDialogOpened: false });
-    }
 
     render() {
         const { classes } = this.props;
@@ -1583,6 +1821,28 @@ class SettingsPageSettingsPermissionPage extends Component {
                     </Typography>
                 </div>
                 <Divider />
+            </Grid>
+        )
+
+        const PermissionButton = (props) => (
+            <Grid item xs={12} className={classes.itemPermissionButtonRoot}>
+                <ButtonBase className={classes.itemPermissionButtonContainer} onClick={(e) => this.props.history.push(`/pageSettings/detail?origin=${props.origin}`)}>
+                    <div className={classes.itemTitleRoot}>
+                        <img src={props.favicon === undefined ? `${protocolStr}://resources/icons/public.svg` : props.favicon} style={{ width: 24, height: 24, pointerEvents: 'none' }} />
+                        <Typography variant="body2" style={{ marginLeft: 10 }}>{props.origin}</Typography>
+                    </div>
+                    <div className={classes.itemControlRoot}>
+                        <ChevronRightIcon />
+                    </div>
+                </ButtonBase>
+                <Divider orientation="vertical" flexItem className={classes.itemPermissionButtonDivider} />
+                <IconButton className={classes.itemPermissionButtonRemove}
+                    onClick={() => {
+                        window.removePageSettings(props.origin, this.state.type);
+                    }}
+                >
+                    <DeleteIcon />
+                </IconButton>
             </Grid>
         )
 
@@ -1623,38 +1883,40 @@ class SettingsPageSettingsPermissionPage extends Component {
                                     <Typography variant="subtitle2" className={classes.paperHeading}>{this.section.controls.allow}</Typography>
                                     <Divider />
                                 </Grid>
-                                {this.state.allows.map((item, v) => (
-                                    <Fragment>
-                                        <Grid item xs={12} className={classes.itemButtonRoot} key={v}>
-                                            <div className={classes.itemTitleRoot}>
-                                                <img src={item.favicon === undefined ? `${protocolStr}://resources/icons/public.svg` : item.favicon} style={{ width: 24, height: 24, pointerEvents: 'none' }} />
-                                                <Typography variant="body2" style={{ marginLeft: 10 }}>{item.origin}</Typography>
-                                            </div>
-                                            <div className={classes.itemControlRoot}>
-                                                <ChevronRightIcon />
-                                            </div>
-                                        </Grid>
-                                        {v < this.state.allows.length - 1 && <Grid item xs={12} className={classes.itemDivider}><Divider /></Grid>}
-                                    </Fragment>
-                                ))}
+                                {this.state.allows.length > 0 ?
+                                    this.state.allows.map((item, v) => (
+                                        <Fragment>
+                                            <PermissionButton key={v} origin={item.origin} favicon={item.favicon} />
+                                            {v < this.state.allows.length - 1 && <Grid item xs={12} className={classes.itemDivider}><Divider /></Grid>}
+                                        </Fragment>
+                                    ))
+                                    :
+                                    <Grid item xs={12} className={classes.itemRoot}>
+                                        <div className={classes.itemTitleRoot}>
+                                            <Typography variant="body2" style={{ marginLeft: getTheme().spacing(4) }}>{this.section.controls.noDatas}</Typography>
+                                        </div>
+                                        <div className={classes.itemControlRoot} />
+                                    </Grid>
+                                }
                                 <Grid item xs={12} className={classes.paperHeadingRoot}>
                                     <Typography variant="subtitle2" className={classes.paperHeading}>{this.section.controls.deny}</Typography>
                                     <Divider />
                                 </Grid>
-                                {this.state.denies.map((item, v) => (
-                                    <Fragment>
-                                        <Grid item xs={12} className={classes.itemButtonRoot} key={v}>
-                                            <div className={classes.itemTitleRoot}>
-                                                <img src={item.favicon === undefined ? `${protocolStr}://resources/icons/public.svg` : item.favicon} style={{ width: 24, height: 24, pointerEvents: 'none' }} />
-                                                <Typography variant="body2" style={{ marginLeft: 10 }}>{item.origin}</Typography>
-                                            </div>
-                                            <div className={classes.itemControlRoot}>
-                                                <ChevronRightIcon />
-                                            </div>
-                                        </Grid>
-                                        {v < this.state.denies.length - 1 && <Grid item xs={12} className={classes.itemDivider}><Divider /></Grid>}
-                                    </Fragment>
-                                ))}
+                                {this.state.denies.length > 0 ?
+                                    this.state.denies.map((item, v) => (
+                                        <Fragment>
+                                            <PermissionButton key={v} origin={item.origin} favicon={item.favicon} />
+                                            {v < this.state.denies.length - 1 && <Grid item xs={12} className={classes.itemDivider}><Divider /></Grid>}
+                                        </Fragment>
+                                    ))
+                                    :
+                                    <Grid item xs={12} className={classes.itemRoot}>
+                                        <div className={classes.itemTitleRoot}>
+                                            <Typography variant="body2" style={{ marginLeft: getTheme().spacing(4) }}>{this.section.controls.noDatas}</Typography>
+                                        </div>
+                                        <div className={classes.itemControlRoot} />
+                                    </Grid>
+                                }
                             </Grid>
                         ) : (<Redirect to="/pageSettings" />)}
                     </Paper>
@@ -1927,6 +2189,7 @@ render(
                 <Route path='/search' component={withStyles(styles)(SettingsSearchEnginePage)} />
                 <RouterSwitch>
                     <Route exact path='/pageSettings' component={withRouter(withStyles(styles)(SettingsPageSettingsPage))} />
+                    <Route path='/pageSettings/detail' component={withRouter(withStyles(styles)(SettingsPageSettingsDetailPage))} />
                     <Route path='/pageSettings/permission/:type' component={withRouter(withStyles(styles)(SettingsPageSettingsPermissionPage))} />
                     <Route path='/pageSettings/content/:type' component={withRouter(withStyles(styles)(SettingsPageSettingsContentPage))} />
                     <Route path='/pageSettings/*'><Redirect to='/pageSettings' /></Route>

@@ -8,6 +8,11 @@
     src: url('fonts/Product-Sans-Bold.ttf');
 }
 
+::selection {
+    background-color: #b3d4fc;
+    text-shadow: none;
+}
+
 body.page, body.page > div#app {
     width: 100vw;
     height: 100vh;

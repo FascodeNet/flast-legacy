@@ -24,7 +24,7 @@ const lang = require(`${app.getAppPath()}/langs/${userConfig.get('language') != 
 const width = 350;
 const height = 600;
 
-module.exports = class InfomationWindow extends BrowserWindow {
+module.exports = class MenuWindow extends BrowserWindow {
 
     constructor(appWindow) {
         super({
@@ -70,7 +70,7 @@ module.exports = class InfomationWindow extends BrowserWindow {
         this.appWindow.isModuleWindowFocused = true;
 
         this.hide();
-        this.webContents.send(`menuWindow${openUserInfo ? '-userInfo' : ''}-${this.id}`, { windowId: this.appWindow.windowId, tabId, url, zoomLevel });
+        this.webContents.send(`menuWindow-${this.id}`, { windowId: this.appWindow.windowId, type: openUserInfo ? 'userInfo' : null, tabId, url, zoomLevel });
         this.fixBounds();
         this.show();
 

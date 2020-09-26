@@ -637,6 +637,46 @@ global.setSearchEngine = (name) => {
 // ====================================================================== //
 */
 
+
+global.getPageSettings = (origin) => new Promise((resolve) => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    ipcRenderer.send('data-pageSettings-get', { origin });
+    ipcRenderer.once('data-pageSettings-get', (e, args) => resolve(args.data));
+});
+
+global.updatePageSettings = (origin, type, result) => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    ipcRenderer.send('data-pageSettings-update', { origin, type, result });
+};
+
+global.removePageSettings = (origin, type) => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    ipcRenderer.send('data-pageSettings-remove', { origin, type });
+};
+
+
+global.getAllowPermissions = (type) => new Promise((resolve) => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    ipcRenderer.send('data-permissions-allow', { type });
+    ipcRenderer.once('data-permissions-allow', (e, args) => {
+        resolve(args.data);
+    });
+});
+
+global.getDenyPermissions = (type) => new Promise((resolve) => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    ipcRenderer.send('data-permissions-deny', { type });
+    ipcRenderer.once('data-permissions-deny', (e, args) => {
+        resolve(args.data);
+    });
+});
+
+
 global.getLocation = () => {
     if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
 
@@ -732,25 +772,6 @@ global.setOpenExternal = (v) => {
 
     userConfig.set('pageSettings.permissions.openExternal', v);
 }
-
-
-global.getAllowPermissions = (type) => new Promise((resolve) => {
-    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
-
-    ipcRenderer.send('data-permissions-allow', { type });
-    ipcRenderer.once('data-permissions-allow', (e, args) => {
-        resolve(args.data);
-    });
-});
-
-global.getDenyPermissions = (type) => new Promise((resolve) => {
-    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
-
-    ipcRenderer.send('data-permissions-deny', { type });
-    ipcRenderer.once('data-permissions-deny', (e, args) => {
-        resolve(args.data);
-    });
-});
 
 
 global.getZoomLevel = () => {
@@ -987,7 +1008,7 @@ onload = () => {
     delete global.installApp;
     delete global.isInstallApp;
 
-    
+
     delete closeWindow;
     delete getFeedbackSendURL;
 }
@@ -1000,24 +1021,18 @@ onmousedown = (e) => {
     if (remote.getCurrentWindow().getBrowserViews()[0] == undefined) return;
     const view = remote.getCurrentWindow().getBrowserViews()[0];
 
-    if (e.button == 3) {
-        if (view.webContents.canGoBack())
+    const url = view.webContents.getURL();
+
+    if (e.button == 3 && view.webContents.canGoBack()) {
+        view.webContents.goBack();
+
+        if (url.startsWith(`${protocolStr}://error`) && view.webContents.canGoBack())
             view.webContents.goBack();
-        if (view.webContents.getURL().startsWith(`${protocolStr}://error`)) {
-            if (view.webContents.canGoBack())
-                view.webContents.goBack();
-            return;
-        }
-        return;
-    } else if (e.button == 4) {
-        if (view.webContents.canGoForward())
+    } else if (e.button == 4 && view.webContents.canGoForward()) {
+        view.webContents.goForward();
+
+        if (url.startsWith(`${protocolStr}://error`) && view.webContents.canGoForward())
             view.webContents.goForward();
-        if (view.webContents.getURL().startsWith(`${protocolStr}://error`)) {
-            if (view.webContents.canGoForward())
-                view.webContents.goForward();
-            return;
-        }
-        return;
     }
 }
 

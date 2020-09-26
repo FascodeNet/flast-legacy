@@ -6,7 +6,7 @@ const os = require('os');
 const https = require('https');
 const http = require('http');
 
-const InfomationWindow = require('./InfomationWindow');
+const InformationWindow = require('./InformationWindow');
 const PermissionWindow = require('./PermissionWindow');
 const MenuWindow = require('./MenuWindow');
 const AuthenticationWindow = require('./AuthenticationWindow');
@@ -81,7 +81,7 @@ module.exports = class MainWindow extends BrowserWindow {
 
         userConfig.get('window.isMaximized') && this.maximize();
 
-        this.infoWindow = new InfomationWindow(this);
+        this.infoWindow = new InformationWindow(this);
         this.permissionWindow = new PermissionWindow(this, this.windowId);
         this.menuWindow = new MenuWindow(this);
 
@@ -112,12 +112,9 @@ module.exports = class MainWindow extends BrowserWindow {
 
         this.once('ready-to-show', () => this.show());
 
-        const id2 = this.id;
         this.on('closed', () => {
             application.currentWindow = null;
-
             this.views.map((item) => item.view.destroy());
-            application.windows.delete(id2);
         });
         this.on('close', (e) => {
             userConfig.set('window.isMaximized', this.isMaximized());
@@ -166,6 +163,29 @@ module.exports = class MainWindow extends BrowserWindow {
         this.on('leave-full-screen', this.resizeWindows);
         this.on('enter-html-full-screen', this.resizeWindows);
         this.on('leave-html-full-screen', this.resizeWindows);
+
+        /*
+        this.on('app-command', (e, cmd) => {
+            if (this.getBrowserViews()[0] == undefined) return;
+            const view = this.getBrowserViews()[0];
+
+            const url = view.webContents.getURL();
+
+            console.log(cmd);
+
+            if (cmd === 'browser-backward' && view.webContents.canGoBack()) {
+                view.webContents.goBack();
+
+                if (url.startsWith(`${protocolStr}://error`) && view.webContents.canGoBack())
+                    view.webContents.goBack();
+            } else if (cmd === 'browser-forward' && view.webContents.canGoForward()) {
+                view.webContents.goForward();
+
+                if (url.startsWith(`${protocolStr}://error`) && view.webContents.canGoForward())
+                    view.webContents.goForward();
+            }
+        });
+        */
 
         this.registerListeners(this.windowId);
     }
@@ -258,13 +278,12 @@ module.exports = class MainWindow extends BrowserWindow {
         ipcMain.on(`window-menuWindow-${id}`, (e, args) => {
             this.hideWindows();
             if (!this.menuWindow.isVisible()) {
-                this.views.filter((view, i) => {
-                    if (view.view.webContents.id == args.id) {
-                        let webContents = this.views[i].view.webContents;
+                const item = this.views.find(item => item.view.webContents.id === args.id);
+                if (item == null) return;
 
-                        this.menuWindow.showWindow(args.id, args.url, webContents.zoomFactor, args.openUserInfo);
-                    }
-                });
+                let webContents = item.view.webContents;
+
+                this.menuWindow.showWindow(args.id, args.url, webContents.zoomFactor, args.openUserInfo);
             } else {
                 this.menuWindow.hide();
             }
@@ -299,79 +318,75 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`tab-fixed-${id}`, (e, args) => {
-            this.views.filter((item, i) => {
-                if (item.view.webContents.id === args.id) {
-                    let newViews = this.views.concat();
-                    newViews[i].isFixed = args.result;
-                    this.views = newViews;
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
-                    this.getViews(this.windowId);
-                }
-            });
+            const index = this.views.findIndex(item => item.view.webContents.id === args.id);
+
+            let newViews = this.views.concat();
+            newViews[index].isFixed = args.result;
+            this.views = newViews;
+
+            this.getViews(this.windowId);
         });
 
         ipcMain.on(`browserView-goBack-${id}`, (e, args) => {
-            this.views.filter((item, i) => {
-                if (item.view.webContents.id === args.id) {
-                    let webContents = item.view.webContents;
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
-                    if (webContents.canGoBack())
-                        webContents.goBack();
+            let webContents = item.view.webContents;
 
-                    const url = webContents.getURL();
-                    if (url.startsWith(`${protocolStr}://error`)) {
-                        if (webContents.canGoBack())
-                            webContents.goBack();
-                    }
-                }
-            });
+            if (webContents.canGoBack())
+                webContents.goBack();
+
+            const url = webContents.getURL();
+            if (url.startsWith(`${protocolStr}://error`)) {
+                if (webContents.canGoBack())
+                    webContents.goBack();
+            }
         });
 
         ipcMain.on(`browserView-goForward-${id}`, (e, args) => {
-            this.views.filter((item, i) => {
-                if (item.view.webContents.id === args.id) {
-                    let webContents = item.view.webContents;
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
-                    if (webContents.canGoForward())
-                        webContents.goForward();
+            let webContents = item.view.webContents;
 
-                    const url = webContents.getURL();
-                    if (url.startsWith(`${protocolStr}://error`)) {
-                        if (webContents.canGoForward())
-                            webContents.goForward();
-                    }
-                }
-            });
+            if (webContents.canGoForward())
+                webContents.goForward();
+
+            const url = webContents.getURL();
+            if (url.startsWith(`${protocolStr}://error`)) {
+                if (webContents.canGoForward())
+                    webContents.goForward();
+            }
         });
 
         ipcMain.on(`browserView-reload-${id}`, (e, args) => {
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
-                    webContents.reload();
-                }
-            });
+            let webContents = item.view.webContents;
+
+            webContents.reload();
         });
 
         ipcMain.on(`browserView-stop-${id}`, (e, args) => {
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
-                    webContents.stop();
-                }
-            });
+            let webContents = item.view.webContents;
+
+            webContents.stop();
         });
 
         ipcMain.on(`browserView-goHome-${id}`, (e, args) => {
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
-                    webContents.loadURL(userConfig.get('homePage.homeButton.isDefaultHomePage') ? `${protocolStr}://home/` : userConfig.get('homePage.homeButton.defaultPage'));
-                }
-            });
+            let webContents = item.view.webContents;
+
+            webContents.loadURL(userConfig.get('homePage.homeButton.isDefaultHomePage') ? `${protocolStr}://home/` : userConfig.get('homePage.homeButton.defaultPage'));
         });
 
         ipcMain.on(`browserView-loadURL-${id}`, (e, args) => {
@@ -381,13 +396,12 @@ module.exports = class MainWindow extends BrowserWindow {
             this.infoWindow.hide();
             this.suggestWindow.hide();
 
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
+            const item = this.views.find(item => item.view.webContents.id === args.id);
+            if (item == null) return;
 
-                    !pattern.test(url) ? webContents.loadURL(url) : webContents.loadFile(url.replace(/^(file:\/\/\/?)/, ''));
-                }
-            });
+            let webContents = item.view.webContents;
+
+            !pattern.test(url) ? webContents.loadURL(url) : webContents.loadFile(url.replace(/^(file:\/\/\/?)/, ''));
         });
 
         ipcMain.on(`browserView-loadFile-${id}`, (e, args) => {
@@ -608,9 +622,9 @@ module.exports = class MainWindow extends BrowserWindow {
                 });
             } else {
                 view.setBounds({
-                    x: userConfig.get('design.isCustomTitlebar') && !platform.isDarwin ? 1 : 0,
+                    x: !this.isMaximized() && userConfig.get('design.isCustomTitlebar') && !platform.isDarwin ? 1 : 0,
                     y: this.isMaximized() ? this.getHeight(true, height) : userConfig.get('design.isCustomTitlebar') && !platform.isDarwin ? this.getHeight(true, height) + 1 : this.getHeight(true, height),
-                    width: userConfig.get('design.isCustomTitlebar') && !platform.isDarwin ? width - 2 : width,
+                    width: !this.isMaximized() && userConfig.get('design.isCustomTitlebar') && !platform.isDarwin ? width - 2 : width,
                     height: this.isMaximized() ? this.getHeight(false, height) : (userConfig.get('design.isCustomTitlebar') && !platform.isDarwin ? (this.getHeight(false, height)) - 2 : this.getHeight(false, height)),
                 });
             }
@@ -683,25 +697,20 @@ module.exports = class MainWindow extends BrowserWindow {
         this.addTab(url, isActive);
     }
 
-    removeView = () => {
-        this.removeView(this.tabId);
-    }
+    removeView = (id = this.tabId) => {
+        const item = this.views.find(item => item.view.webContents.id === id);
+        if (item == null) return;
 
-    removeView = (id) => {
-        this.views.filter((item, i) => {
-            if (item.view.webContents.id == id) {
-                const index = i;
+        const index = this.views.findIndex(item => item.view.webContents.id === id);
 
-                if (index + 1 < this.views.length) {
-                    this.selectView2(index + 1);
-                } else if (index - 1 >= 0) {
-                    this.selectView2(index - 1);
-                }
+        if (index + 1 < this.views.length) {
+            this.__selectView(index + 1);
+        } else if (index - 1 >= 0) {
+            this.__selectView(index - 1);
+        }
 
-                this.views[index].view.destroy();
-                this.views.splice(index, 1);
-            }
-        });
+        this.views[index].view.destroy();
+        this.views.splice(index, 1);
     }
 
     selectView = (id) => {
@@ -719,7 +728,7 @@ module.exports = class MainWindow extends BrowserWindow {
         this.fixBounds();
     }
 
-    selectView2 = (i) => {
+    __selectView = (i) => {
         const item = this.views[i];
 
         this.tabId = item.id;
@@ -905,8 +914,6 @@ module.exports = class MainWindow extends BrowserWindow {
 
         view.webContents.on('page-title-updated', (e, title) => {
             if (view.isDestroyed()) return;
-
-            console.log('update Title');
 
             if (!String(this.windowId).startsWith('private') && !(view.webContents.getURL().startsWith(`${protocolStr}://`) || view.webContents.getURL().startsWith(`${fileProtocolStr}://`)))
                 this.data.updateHistory(title, view.webContents.getURL());
@@ -1590,12 +1597,12 @@ module.exports = class MainWindow extends BrowserWindow {
 
     getZoom = (id) => {
         if (this.isDestroyed()) return;
-        
+
         const item = this.views.find(item => item.view.webContents.id === id);
         if (item == null) return;
 
         let webContents = item.view.webContents;
-        
+
         console.log(webContents.zoomFactor);
         this.webContents.send(`browserView-zoom-${this.windowId}`, { result: webContents.zoomFactor });
         this.webContents.send(`browserView-zoom-menu-${this.windowId}`, { result: webContents.zoomFactor });
@@ -1740,7 +1747,14 @@ module.exports = class MainWindow extends BrowserWindow {
                     {
                         accelerator: 'CmdOrCtrl+W',
                         label: lang.main.file.closeTab,
-                        click: () => this.removeView()
+                        click: () => {
+                            if (this.views.length > 1) {
+                                this.removeView();
+                                this.getViews();
+                            } else {
+                                this.close();
+                            }
+                        }
                     },
                     {
                         accelerator: 'CmdOrCtrl+Shift+W',
@@ -2050,15 +2064,34 @@ module.exports = class MainWindow extends BrowserWindow {
         ses.setUserAgent(`${ses.getUserAgent().replace(name, app_name).replace(/ Electron\/[A-z0-9-\.]*/g, '')}${isPrivate ? ' PrivMode' : ''}`);
 
         ses.setPermissionRequestHandler(async (webContents, permission, callback, details) => {
-            const url = parse(webContents.getURL());
-            const origin = `${url.protocol}//${url.hostname}`;
+            const { protocol, hostname, port } = new URL(webContents.getURL());
+
+            const getPortString = () => {
+                switch (protocol) {
+                    case 'ftp:':
+                        return `:${port === '' ? '21' : port}`;
+                    case 'file:':
+                        return '';
+                    case 'gopher:':
+                        return `:${port === '' ? '70' : port}`;
+                    case 'http:':
+                    case 'ws:':
+                        return `:${port === '' ? '80' : port}`;
+                    case 'https:':
+                    case 'wss:':
+                        return `:${port === '' ? '443' : port}`;
+                    default: return port;
+                }
+            }
+
+            const origin = `${protocol}//${hostname}${getPortString()}`;
 
             const type = this.getPermission(permission === 'media' ? details.mediaTypes.toString() : permission);
             const userConfigPath = `pageSettings.permissions.${type}`;
 
             const pageSettings = this.data.getPageSettings(origin, type);
 
-            console.log(type, userConfigPath, pageSettings);
+            console.log(origin, type, userConfigPath, pageSettings);
             if (pageSettings !== undefined) {
                 return callback(pageSettings.result);
             } else {
@@ -2082,11 +2115,9 @@ module.exports = class MainWindow extends BrowserWindow {
             ses.protocol.registerFileProtocol(protocolStr, (request, callback) => {
                 const parsed = parse(request.url);
 
-                return callback({
+                callback({
                     path: join(app.getAppPath(), 'pages', parsed.pathname === '/' || !parsed.pathname.match(/(.*)\.([A-z0-9])\w+/g) ? `${parsed.hostname}.html` : `${parsed.hostname}${parsed.pathname}`),
                 });
-            }, (error) => {
-                if (error) console.error(`[Error] Failed to register protocol: ${error}`);
             });
         }
 
@@ -2094,9 +2125,7 @@ module.exports = class MainWindow extends BrowserWindow {
             ses.protocol.registerFileProtocol(fileProtocolStr, (request, callback) => {
                 const parsed = parse(request.url);
 
-                return callback({ path: join(app.getPath('userData'), 'Users', config.get('currentUser'), parsed.pathname) });
-            }, (error) => {
-                if (error) console.error(`[Error] Failed to register protocol: ${error}`);
+                callback({ path: join(app.getPath('userData'), 'Users', config.get('currentUser'), parsed.pathname) });
             });
         }
     }

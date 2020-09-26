@@ -10,13 +10,14 @@ export const ToolbarTextBoxWrapper = styled.div`
   height: 30px;
   margin: 5px;
   padding: 0px;
-  flex-grow: 4;
   position: relative;
+  flex-grow: 4;
   font-size: 14.5px;
-  background-color: #${props => !props.isDarkModeOrPrivateMode ? 'eeeeee' : '252525'};
-  border-radius: ${radiusSize}px;
   outline: none;
+  transition: 0.4s;
+  background-color: #${props => !props.isDarkModeOrPrivateMode ? 'eeeeee' : '252525'};
   color: ${props => !props.isDarkModeOrPrivateMode ? 'black' : 'white'};
+  border-radius: ${radiusSize}px;
   box-sizing: border-box;
 
   &:hover, &:focus, &:focus-within {
@@ -49,19 +50,22 @@ export const ToolbarTextBoxWrapper = styled.div`
   }
 `;
 
-export const ToolbarTextBox = styled.input`
+export const ToolbarTextBox = styled.input.attrs(props => ({
+  spellCheck: false
+}))`
   width: calc(100% - (${buttonSize}px * ${props => props.buttonCount}));
   height: 100%;
   margin: 0px;
   padding: 3px 5px;
   left: ${buttonSize}px;
   right: ${buttonSize}px;
-  display: ${props => props.isShowing ? 'block' : 'none'};
+  display: block;
   position: absolute;
   box-sizing: border-box;
   outline: none;
   background: unset;
   border: none;
+  color: ${props => props.isShowing ? 'inherit' : 'transparent'};
   font-family: 'Noto Sans', 'Noto Sans JP';
   cursor: initial;
   /* border-left: solid 1px #c1c1c1; */
@@ -75,7 +79,7 @@ export const ToolbarDummyTextBox = styled.div`
   padding: 3px 5px !important;
   left: ${buttonSize}px !important;
   right: ${buttonSize}px !important;
-  display: ${props => props.isShowing ? 'flex' : 'none'};
+  display: flex;
   align-items: center;
   position: absolute !important;
   box-sizing: border-box;
@@ -85,6 +89,7 @@ export const ToolbarDummyTextBox = styled.div`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  color: ${props => props.isShowing ? 'inherit' : 'transparent'};
   font-family: 'Noto Sans', 'Noto Sans JP';
   cursor: text;
 

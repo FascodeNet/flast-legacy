@@ -104,9 +104,10 @@ module.exports = {
                 permission: {
                     title: '{replace} is requesting permission',
                     description: 'Permission: {replace}',
+                    check: 'Remember this decision',
                     buttons: {
-                        yes: 'Yes',
-                        no: 'No'
+                        allow: 'Allow',
+                        deny: 'Deny'
                     }
                 },
                 textBox: {
@@ -135,7 +136,11 @@ module.exports = {
             menu: {
                 name: 'Menu',
                 menus: {
-                    userInfo: 'User Infomation',
+                    userInformation: {
+                        name: 'User information',
+                        otherUsers: 'Other users',
+                        endPrivateMode: 'End Private mode'
+                    },
                     newTab: 'New tab',
                     newWindow: 'New window',
                     openPrivateWindow: 'Open Private window',
@@ -182,7 +187,7 @@ module.exports = {
                         feedback: 'Send Feedback',
                         about: `About ${app_name}`
                     },
-                    close: 'Close'
+                    quit: 'Quit'
                 }
             }
         },
@@ -478,9 +483,12 @@ module.exports = {
                 pageSettings: {
                     title: 'Page Settings',
                     controls: {
+                        useDefault: 'Use default',
                         check: 'Check every time',
                         allow: 'Allow',
                         deny: 'Deny',
+
+                        viewDatas: 'すべてのサイトに保存されている権限を表示',
 
                         default: 'Default',
 
@@ -493,6 +501,8 @@ module.exports = {
                         pointer: 'Lock mouse cursor',
                         fullScreen: 'Full Screen',
                         openExternal: 'Open External Link',
+
+                        noDatas: 'サイトが追加されていません。',
 
                         content: 'Content',
                         zoomLevels: {

@@ -39,11 +39,11 @@ module.exports = class Data {
     }
 
     hasPageSettings = (origin, type) => {
-        return this.hasPageSettings(origin, type) !== undefined;
+        return this.getPageSettings(origin, type) !== undefined;
     }
 
     getPageSettingsForOrigin = (origin) => {
-        return this.datas.pageSettings !== undefined ? this.datas.pageSettings.find(item => item.origin === origin) : undefined;
+        return this.datas.pageSettings !== undefined ? this.datas.pageSettings.filter(item => item.origin === origin) : undefined;
     }
 
     getAllowPageSettingsForOrigin = (origin) => {

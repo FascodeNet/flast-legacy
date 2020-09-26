@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 
 import styled from 'styled-components';
 
@@ -38,8 +38,8 @@ const Window = styled.div`
   justify-content: space-around;
   border-radius: ${platform.isWin32 && systemPreferences.isAeroGlassEnabled() || platform.isDarwin ? 2 : 0}px;
   border: ${platform.isWin32 && systemPreferences.isAeroGlassEnabled() || platform.isDarwin ? 'none' : (props => !props.isDarkModeOrPrivateMode ? 'solid 1px #e1e1e1' : 'solid 1px #8b8b8b')};
-  background-color: ${props => !props.isDarkModeOrPrivateMode ? '#f9f9fa' : '#353535'};
-  color: ${props => !props.isDarkModeOrPrivateMode ? '#353535' : '#f9f9fa'};
+  background-color: #${props => !props.isDarkModeOrPrivateMode ? 'ffffff' : '252525'};
+  color: #${props => !props.isDarkModeOrPrivateMode ? '353535' : 'f9f9fa'};
   box-shadow: ${platform.isWin32 && systemPreferences.isAeroGlassEnabled() || platform.isDarwin ? '0px 2px 4px rgba(0, 0, 0, 0.16), 0px 2px 4px rgba(0, 0, 0, 0.23)' : 'none'};
   box-sizing: border-box;
 `;
@@ -65,11 +65,14 @@ const SuggestListContainer = styled.ul`
 
 const SuggestListItem = styled.li`
   padding: ${`4px ${40 * (userConfig.get('design.isHomeButton') ? 5 : 4) - 40}`}px;
-  border-radius: 2px;
-  box-sizing: border-box;
+  display: flex;
+  align-items: center;
   list-style: none;
+  box-sizing: border-box;
+  border-radius: 2px;
   transition: 0.2s background-color;
   font-family: 'Noto Sans', 'Noto Sans JP';
+  font-size: 14px;
 
   &:hover {
     background-color: rgba(196, 196, 196, 0.4);
@@ -84,6 +87,7 @@ const SuggestListItemSecondaryText = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   font-family: 'Noto Sans', 'Noto Sans JP';
+  font-size: 14px;
   
   ${SuggestListItem}:hover & {
 	opacity: 1;
@@ -147,9 +151,10 @@ class SuggestWindow extends Component {
 
 			let suggestions = [];
 
+			const text = data[0].toLowerCase();
 			for (const item of data[1])
 				if (suggestions.indexOf(item) === -1)
-					suggestions.push(String(item).toLowerCase());
+					suggestions.push({ value: String(item).toLowerCase(), texts: [text, String(item).replace(text, '').toLowerCase()] });
 
 			this.setState({
 				id: args.id,
@@ -275,9 +280,9 @@ class SuggestWindow extends Component {
 					</SuggestListItem>
 					{this.state.suggestions.map((item, i) => {
 						return (
-							<SuggestListItem key={i} style={{ padding: 4, color: this.getTheme() || String(this.props.match.params.windowId).startsWith('private') ? '#f9f9fa' : '#353535' }} windowId={this.props.match.params.windowId} onClick={() => { ipcRenderer.send(`suggestWindow-loadURL-${this.props.match.params.windowId}`, { id: this.state.id, url: this.getSearchEngine().url.replace('%s', encodeURIComponent(item)) }); }}>
+							<SuggestListItem key={i} style={{ padding: 4, color: this.getTheme() || String(this.props.match.params.windowId).startsWith('private') ? '#f9f9fa' : '#353535' }} windowId={this.props.match.params.windowId} onClick={() => { ipcRenderer.send(`suggestWindow-loadURL-${this.props.match.params.windowId}`, { id: this.state.id, url: this.getSearchEngine().url.replace('%s', encodeURIComponent(item.value)) }); }}>
 								<SuggestListItemIcon src={this.getTheme() || String(this.props.match.params.windowId).startsWith('private') ? DarkSearchIcon : LightSearchIcon} size={16} />
-								{item}
+								{item.value.startsWith(item.texts[0]) ? <Fragment>{item.texts[0].replace(/ /g, '\u00a0')}<b>{item.texts[1].replace(/ /g, '\u00a0')}</b></Fragment> : item.value}
 								<SuggestListItemSecondaryText>
 									<span style={{ margin: '0px 4px' }}>&mdash;</span>
 									{String(lang.window.toolBar.addressBar.textBox.suggest.search).replace(/{replace}/, this.getSearchEngine().name)}
