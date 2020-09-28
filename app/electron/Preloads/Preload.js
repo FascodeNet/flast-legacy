@@ -638,6 +638,13 @@ global.setSearchEngine = (name) => {
 */
 
 
+global.getPageSettings = () => new Promise((resolve) => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    ipcRenderer.send('data-pageSettings-get', {});
+    ipcRenderer.once('data-pageSettings-get', (e, args) => resolve(args.data));
+});
+
 global.getPageSettings = (origin) => new Promise((resolve) => {
     if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
 
@@ -971,6 +978,13 @@ onload = () => {
     delete global.setSearchEngine;
 
 
+    delete global.getPageSettings;
+    delete global.updatePageSettings;
+    delete global.removePageSettings;
+
+    delete global.getAllowPermissions;
+    delete global.getDenyPermissions;
+
     delete global.getLocation;
     delete global.setLocation;
     delete global.getCamera;
@@ -987,10 +1001,6 @@ onload = () => {
     delete global.setFullScreen;
     delete global.getOpenExternal;
     delete global.setOpenExternal;
-
-    delete global.getAllowPermissions;
-    delete global.getDenyPermissions;
-
 
     delete global.getZoomLevel;
     delete global.setZoomLevel;

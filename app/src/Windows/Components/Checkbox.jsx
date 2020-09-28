@@ -44,7 +44,7 @@ const StyledCheckbox = styled.div`
 
   ${Icon} {
     visibility: ${props => props.checked ? 'visible' : 'hidden'};
-	transition: visibility 1s ease-out;
+	  transition: visibility 1s ease-out;
   }
 `;
 

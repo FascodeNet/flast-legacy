@@ -500,6 +500,7 @@ module.exports = {
                         deny: 'ブロック',
 
                         viewDatas: 'すべてのサイトに保存されている権限を表示',
+                        datas: 'すべてのサイト',
 
                         default: 'デフォルト',
 

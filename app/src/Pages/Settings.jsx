@@ -1419,7 +1419,7 @@ class SettingsPageSettingsPage extends Component {
                                 <Typography variant="h6" className={classes.paperHeading}>{this.section.title}</Typography>
                                 <Divider />
                             </Grid>
-                            <Grid item xs={12} className={classes.itemButtonRoot} component={ButtonBase} onClick={(e) => this.props.history.push(`/pageSettings/permission/${type}`)}>
+                            <Grid item xs={12} className={classes.itemButtonRoot} component={ButtonBase} onClick={(e) => this.props.history.push('/pageSettings/all')}>
                                 <div className={classes.itemTitleRoot}>
                                     <Typography variant="body2" style={{ marginLeft: getTheme().spacing(4) }}>{this.section.controls.viewDatas}</Typography>
                                 </div>
@@ -1482,6 +1482,130 @@ SettingsPageSettingsPage.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
+class SettingsPageSettingsAllPage extends Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            isDialogOpened: false,
+
+            // Page Settings
+            datas: []
+        };
+
+        this.settings = window.getLanguageFile().internalPages.settings;
+        this.section = this.settings.sections.pageSettings;
+    }
+
+    componentDidMount = () => {
+        this.reloadData();
+        setInterval(() => this.reloadData(), 1000 * 5);
+        
+        document.title = `${this.settings.title} » ${this.section.title}`;
+    }
+
+    componentWillReceiveProps = () => {
+        this.reloadData();
+
+        document.title = `${this.settings.title} » ${this.section.title}`;
+    }
+
+    handleDialogClose = () => {
+        this.setState({ isDialogOpened: false });
+    }
+
+
+    reloadData = () => {
+        window.getPageSettings().then((items) => {
+            let datas = [];
+            items.map((item) => window.getFavicon(item.origin).then((favicon) => datas.push({ origin: item.origin, favicon, type: item.type })));
+
+            this.setState({ datas });
+            console.log(this.state.datas);    
+        });
+    }
+
+
+    render() {
+        const { classes } = this.props;
+
+
+        const PageHeading = (props) => (
+            <Grid item xs={12}>
+                <div style={{ display: 'flex', alignItems: 'center', height: 30, marginBottom: 4 }}>
+                    <IconButton size="small" component={RouterLink} to="/pageSettings">
+                        <ArrowBackIcon />
+                    </IconButton>
+                    <Typography variant="h6" style={{
+                        userSelect: 'none',
+                        paddingLeft: getTheme().spacing(1),
+                        paddingRight: getTheme().spacing(0.5)
+                    }}>
+                        <Typography variant="inherit" color="textSecondary">{this.section.title} / </Typography>
+                        {props.text}
+                    </Typography>
+                </div>
+                <Divider />
+            </Grid>
+        );
+
+        const PermissionButton = (props) => (
+            <Grid item xs={12} className={classes.itemPermissionButtonRoot}>
+                <ButtonBase className={classes.itemPermissionButtonContainer} onClick={(e) => this.props.history.push(`/pageSettings/detail?origin=${props.origin}`)}>
+                    <div className={classes.itemTitleRoot}>
+                        <img src={props.favicon === undefined ? `${protocolStr}://resources/icons/public.svg` : props.favicon} style={{ width: 24, height: 24, pointerEvents: 'none' }} />
+                        <Typography variant="body2" style={{ marginLeft: 10 }}>{props.origin}</Typography>
+                    </div>
+                    <div className={classes.itemControlRoot}>
+                        <ChevronRightIcon />
+                    </div>
+                </ButtonBase>
+                <Divider orientation="vertical" flexItem className={classes.itemPermissionButtonDivider} />
+                <IconButton className={classes.itemPermissionButtonRemove}
+                    onClick={() => {
+                        window.removePageSettings(props.origin, props.type);
+                    }}
+                >
+                    <DeleteIcon />
+                </IconButton>
+            </Grid>
+        );
+
+
+        return (
+            <NavigationBar title={this.settings.title} buttons={[<Button color="inherit" onClick={() => { window.openInEditor(); }}>テキストエディタで開く</Button>]}>
+                <Container fixed className={classes.containerRoot}>
+                    <Paper className={classes.paperRoot}>
+                        <Grid container spacing={2}>
+                            <PageHeading text={this.section.controls.datas} />
+                            {this.state.datas.length > 0 ?
+                                this.state.datas.map((item, v) => (
+                                    <Fragment>
+                                        <PermissionButton key={v} origin={item.origin} favicon={item.favicon} type={item.type} />
+                                        {v < this.state.datas.length - 1 && <Grid item xs={12} className={classes.itemDivider}><Divider /></Grid>}
+                                    </Fragment>
+                                ))
+                                :
+                                <Grid item xs={12} className={classes.itemRoot}>
+                                    <div className={classes.itemTitleRoot}>
+                                        <Typography variant="body2" style={{ marginLeft: getTheme().spacing(4) }}>{this.section.controls.noDatas}</Typography>
+                                    </div>
+                                    <div className={classes.itemControlRoot} />
+                                </Grid>
+                            }
+                        </Grid>
+                    </Paper>
+                </Container>
+            </NavigationBar>
+        );
+    }
+}
+
+SettingsPageSettingsAllPage.propTypes = {
+    classes: PropTypes.object.isRequired,
+};
+
 class SettingsPageSettingsDetailPage extends Component {
 
     constructor(props) {
@@ -1515,7 +1639,7 @@ class SettingsPageSettingsDetailPage extends Component {
         const permissions = ['location', 'camera', 'mic', 'notifications', 'midi', 'pointer', 'fullScreen', 'openExternal'];
 
         window.getPageSettings(this.state.origin).then((items) => {
-            items.filter(item => permissions.includes(item.type)).forEach((item, i) => {
+            items.filter((item) => permissions.includes(item.type)).forEach((item, i) => {
                 this.setPermissionValue(item.type, item.result ? 1 : 0);
             });
         });
@@ -1759,6 +1883,19 @@ class SettingsPageSettingsPermissionPage extends Component {
     }
 
 
+    reloadPermissions = () => {
+        window.getAllowPermissions(this.state.type).then((dataAllows) => {
+            let allows = [];
+            dataAllows.map((allow) => window.getFavicon(allow.origin).then((favicon) => allows.push({ origin: allow.origin, favicon })));
+            window.getDenyPermissions(this.state.type).then((dataDenies) => {
+                let denies = [];
+                dataDenies.map((deny) => window.getFavicon(deny.origin).then((favicon) => denies.push({ origin: deny.origin, favicon })));
+
+                this.setState({ allows, denies });
+            });
+        });
+    }
+
     isPermission = (type = this.state.type) => {
         return type !== undefined && ['location', 'camera', 'mic', 'notifications', 'midi', 'pointer', 'fullScreen', 'openExternal'].includes(type)
     }
@@ -1822,7 +1959,7 @@ class SettingsPageSettingsPermissionPage extends Component {
                 </div>
                 <Divider />
             </Grid>
-        )
+        );
 
         const PermissionButton = (props) => (
             <Grid item xs={12} className={classes.itemPermissionButtonRoot}>
@@ -1839,12 +1976,13 @@ class SettingsPageSettingsPermissionPage extends Component {
                 <IconButton className={classes.itemPermissionButtonRemove}
                     onClick={() => {
                         window.removePageSettings(props.origin, this.state.type);
+                        this.reloadPermissions();
                     }}
                 >
                     <DeleteIcon />
                 </IconButton>
             </Grid>
-        )
+        );
 
         return (
             <NavigationBar title={this.settings.title} buttons={[<Button color="inherit" onClick={() => { window.openInEditor(); }}>テキストエディタで開く</Button>]}>
@@ -1981,7 +2119,7 @@ class SettingsPageSettingsContentPage extends Component {
                 </div>
                 <Divider />
             </Grid>
-        )
+        );
 
         const Content = (props) => {
             const type = props.type ?? this.state.type
@@ -2189,6 +2327,7 @@ render(
                 <Route path='/search' component={withStyles(styles)(SettingsSearchEnginePage)} />
                 <RouterSwitch>
                     <Route exact path='/pageSettings' component={withRouter(withStyles(styles)(SettingsPageSettingsPage))} />
+                    <Route path='/pageSettings/all' component={withRouter(withStyles(styles)(SettingsPageSettingsAllPage))} />
                     <Route path='/pageSettings/detail' component={withRouter(withStyles(styles)(SettingsPageSettingsDetailPage))} />
                     <Route path='/pageSettings/permission/:type' component={withRouter(withStyles(styles)(SettingsPageSettingsPermissionPage))} />
                     <Route path='/pageSettings/content/:type' component={withRouter(withStyles(styles)(SettingsPageSettingsContentPage))} />

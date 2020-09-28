@@ -102,7 +102,7 @@ module.exports = class WindowManager {
         });
 
         ipcMain.on('data-pageSettings-get', (e, args) => {
-            e.sender.send('data-pageSettings-get', { data: this.data.getPageSettingsForOrigin(args.origin) })
+            e.sender.send('data-pageSettings-get', { data: args.origin !== undefined ? this.data.getPageSettingsForOrigin(args.origin) : this.data.getAllPageSettings() })
         });
 
         ipcMain.on('data-pageSettings-update', (e, args) => {

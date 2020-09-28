@@ -498,6 +498,7 @@ module.exports = {
                         deny: 'Deny',
 
                         viewDatas: 'すべてのサイトに保存されている権限を表示',
+                        datas: 'すべてのサイト',
 
                         default: 'Default',
 
@@ -511,7 +512,7 @@ module.exports = {
                         fullScreen: 'Full Screen',
                         openExternal: 'Open External Link',
 
-                        noDatas: 'サイトが追加されていません。',
+                        noDatas: 'Sites Not found.',
 
                         content: 'Content',
                         zoomLevels: {
