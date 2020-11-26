@@ -44,8 +44,8 @@ module.exports = class MainWindow extends BrowserWindow {
         const { width, height, x, y } = userConfig.get('window.bounds');
 
         super({
-            width: userConfig.get('window.isMaximized') ? 1110 : (width !== undefined ? width : 1110),
-            height: userConfig.get('window.isMaximized') ? 680 : (height !== undefined ? height : 680),
+            width: userConfig.get('window.isMaximized') ? 1110 : (width ?? 1110),
+            height: userConfig.get('window.isMaximized') ? 680 : (height ?? 680),
             minWidth: 500,
             minHeight: 360,
             x,
@@ -114,7 +114,7 @@ module.exports = class MainWindow extends BrowserWindow {
 
         this.on('closed', () => {
             application.currentWindow = null;
-            this.views.map((item) => item.view.destroy());
+            this.views.map((item) => item.view.webContents.destroy());
         });
         this.on('close', (e) => {
             userConfig.set('window.isMaximized', this.isMaximized());
@@ -163,29 +163,6 @@ module.exports = class MainWindow extends BrowserWindow {
         this.on('leave-full-screen', this.resizeWindows);
         this.on('enter-html-full-screen', this.resizeWindows);
         this.on('leave-html-full-screen', this.resizeWindows);
-
-        /*
-        this.on('app-command', (e, cmd) => {
-            if (this.getBrowserViews()[0] == undefined) return;
-            const view = this.getBrowserViews()[0];
-
-            const url = view.webContents.getURL();
-
-            console.log(cmd);
-
-            if (cmd === 'browser-backward' && view.webContents.canGoBack()) {
-                view.webContents.goBack();
-
-                if (url.startsWith(`${protocolStr}://error`) && view.webContents.canGoBack())
-                    view.webContents.goBack();
-            } else if (cmd === 'browser-forward' && view.webContents.canGoForward()) {
-                view.webContents.goForward();
-
-                if (url.startsWith(`${protocolStr}://error`) && view.webContents.canGoForward())
-                    view.webContents.goForward();
-            }
-        });
-        */
 
         this.registerListeners(this.windowId);
     }
@@ -268,18 +245,16 @@ module.exports = class MainWindow extends BrowserWindow {
 
         ipcMain.on(`window-translateWindow-${id}`, (e, args) => {
             this.hideWindows();
-            if (!this.translateWindow.isVisible()) {
-                this.translateWindow.showWindow(args.url);
-            } else {
-                this.translateWindow.hide();
-            }
+
+            !this.translateWindow.isVisible() ? this.translateWindow.showWindow(args.url) : this.translateWindow.hide();
         });
 
         ipcMain.on(`window-menuWindow-${id}`, (e, args) => {
             this.hideWindows();
+
             if (!this.menuWindow.isVisible()) {
-                const item = this.views.find(item => item.view.webContents.id === args.id);
-                if (item == null) return;
+                const item = this.findView(args.id);
+                if (this.isNullOrUndefined(item)) return;
 
                 let webContents = item.view.webContents;
 
@@ -318,10 +293,10 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`tab-fixed-${id}`, (e, args) => {
-            const item = this.views.find(item => item.view.webContents.id === args.id);
-            if (item == null) return;
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
 
-            const index = this.views.findIndex(item => item.view.webContents.id === args.id);
+            const index = this.findViewIndex(args.id);
 
             let newViews = this.views.concat();
             newViews[index].isFixed = args.result;
@@ -331,8 +306,8 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`browserView-goBack-${id}`, (e, args) => {
-            const item = this.views.find(item => item.view.webContents.id === args.id);
-            if (item == null) return;
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
 
             let webContents = item.view.webContents;
 
@@ -347,8 +322,8 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`browserView-goForward-${id}`, (e, args) => {
-            const item = this.views.find(item => item.view.webContents.id === args.id);
-            if (item == null) return;
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
 
             let webContents = item.view.webContents;
 
@@ -363,8 +338,8 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`browserView-reload-${id}`, (e, args) => {
-            const item = this.views.find(item => item.view.webContents.id === args.id);
-            if (item == null) return;
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
 
             let webContents = item.view.webContents;
 
@@ -372,8 +347,8 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`browserView-stop-${id}`, (e, args) => {
-            const item = this.views.find(item => item.view.webContents.id === args.id);
-            if (item == null) return;
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
 
             let webContents = item.view.webContents;
 
@@ -381,8 +356,8 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`browserView-goHome-${id}`, (e, args) => {
-            const item = this.views.find(item => item.view.webContents.id === args.id);
-            if (item == null) return;
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
 
             let webContents = item.view.webContents;
 
@@ -396,8 +371,8 @@ module.exports = class MainWindow extends BrowserWindow {
             this.infoWindow.hide();
             this.suggestWindow.hide();
 
-            const item = this.views.find(item => item.view.webContents.id === args.id);
-            if (item == null) return;
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
 
             let webContents = item.view.webContents;
 
@@ -408,12 +383,11 @@ module.exports = class MainWindow extends BrowserWindow {
             this.infoWindow.hide();
             this.suggestWindow.hide();
 
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
-                    webContents.loadFile(args.url);
-                }
-            });
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
+
+            let webContents = item.view.webContents;
+            webContents.loadFile(args.url);
         });
 
         ipcMain.on(`browserView-zoom-${id}`, (e, args) => {
@@ -421,8 +395,8 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`browserView-zoomIn-${id}`, (e, args) => {
-            const item = this.views.find(item => item.view.webContents.id === args.id);
-            if (item == null) return;
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
 
             let webContents = item.view.webContents;
 
@@ -434,8 +408,8 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`browserView-zoomOut-${id}`, (e, args) => {
-            const item = this.views.find(item => item.view.webContents.id === args.id);
-            if (item == null) return;
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
 
             let webContents = item.view.webContents;
 
@@ -447,78 +421,69 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`browserView-zoomDefault-${id}`, (e, args) => {
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
 
-                    webContents.zoomFactor = userConfig.get('pageSettings.contents.zoomLevel', 1);
-                    this.getZoom(args.id);
-                    this.webContents.send(`menuWindow-${this.windowId}`, { url: webContents.getURL(), zoomLevel: webContents.zoomFactor });
-                }
-            });
+            let webContents = item.view.webContents;
+
+            webContents.zoomFactor = userConfig.get('pageSettings.contents.zoomLevel', 1);
+            this.getZoom(args.id);
+            this.webContents.send(`menuWindow-${this.windowId}`, { url: webContents.getURL(), zoomLevel: webContents.zoomFactor });
         });
 
         ipcMain.on(`browserView-audioMute-${id}`, (e, args) => {
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
 
-                    webContents.audioMuted = !webContents.audioMuted;
-                    this.getViews();
-                }
-            });
+            let webContents = item.view.webContents;
+
+            webContents.audioMuted = !webContents.audioMuted;
+            this.getViews();
         });
 
         ipcMain.on(`browserView-print-${id}`, (e, args) => {
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
-                    webContents.print();
-                }
-            });
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
+
+            let webContents = item.view.webContents;
+            webContents.print();
         });
 
         ipcMain.on(`browserView-savePage-${id}`, (e, args) => {
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
 
-                    dialog.showSaveDialog({
-                        defaultPath: `${app.getPath('downloads')}/${webContents.getTitle()}.html`,
-                        filters: [
-                            { name: 'HTML', extensions: ['htm', 'html'] },
-                            { name: 'All Files', extensions: ['*'] }
-                        ]
-                    }, (fileName) => {
-                        if (fileName === undefined || fileName === null) return;
-                        webContents.savePage(fileName, 'HTMLComplete', (err) => {
-                            if (!err) console.log('Page Save successfully');
-                        });
-                    });
-                }
+            let webContents = item.view.webContents;
+
+            dialog.showSaveDialog({
+                defaultPath: `${app.getPath('downloads')}/${webContents.getTitle()}.html`,
+                filters: [
+                    { name: 'HTML', extensions: ['htm', 'html'] },
+                    { name: 'All Files', extensions: ['*'] }
+                ]
+            }, (fileName) => {
+                if (this.isNullOrUndefined(fileName)) return;
+                webContents.savePage(fileName, 'HTMLComplete', (err) => {
+                    if (!err) console.log('Page Save successfully');
+                });
             });
         });
 
         ipcMain.on(`browserView-viewSource-${id}`, (e, args) => {
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
-                    this.addView(`view-source:${webContents.getURL()}`, true);
-                }
-            });
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
+
+            let webContents = item.view.webContents;
+            this.addView(`view-source:${webContents.getURL()}`, true);
         });
 
         ipcMain.on(`browserView-devTool-${id}`, (e, args) => {
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
 
-                    if (webContents.isDevToolsOpened())
-                        webContents.devToolsWebContents.focus();
-                    else
-                        webContents.openDevTools();
-                }
-            });
+            let webContents = item.view.webContents;
+
+            webContents.isDevToolsOpened() ? webContents.devToolsWebContents.focus() : webContents.openDevTools();
         });
 
         ipcMain.on(`suggestWindow-loadURL-${id}`, (e, args) => {
@@ -527,12 +492,11 @@ module.exports = class MainWindow extends BrowserWindow {
 
             this.focus();
 
-            this.views.filter((view, i) => {
-                if (view.view.webContents.id == args.id) {
-                    let webContents = this.views[i].view.webContents;
-                    webContents.loadURL(args.url);
-                }
-            });
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
+
+            let webContents = item.view.webContents;
+            webContents.loadURL(args.url);
         });
 
         ipcMain.on(`suggestWindow-loadFile-${id}`, (e, args) => {
@@ -541,17 +505,16 @@ module.exports = class MainWindow extends BrowserWindow {
 
             this.focus();
 
-            this.views.filter((item, i) => {
-                if (item.view.webContents.id == args.id) {
-                    let webContents = item.view.webContents;
-                    webContents.loadFile(args.url);
-                }
-            });
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
+
+            let webContents = item.view.webContents;
+            webContents.loadFile(args.url);
         });
 
         ipcMain.on(`data-bookmark-add-${id}`, (e, args) => {
-            const item = this.views.find(item => item.view.webContents.id === args.id);
-            if (item == null) return;
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
 
             const view = item.view;
             this.data.updateBookmark(view.webContents.getTitle(), view.webContents.getURL(), null, args.isFolder, args.isPrivate);
@@ -559,8 +522,8 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`data-bookmark-remove-${id}`, (e, args) => {
-            const item = this.views.find(item => item.view.webContents.id === args.id);
-            if (item == null) return;
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
 
             const view = item.view;
             this.data.removeBookmark(view.webContents.getURL(), args.isPrivate);
@@ -568,8 +531,8 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         ipcMain.on(`data-bookmark-has-${id}`, (e, args) => {
-            const item = this.views.find(item => item.view.webContents.id === args.id);
-            if (item == null) return;
+            const item = this.findView(args.id);
+            if (this.isNullOrUndefined(item)) return;
 
             const view = item.view;
             e.sender.send(`data-bookmark-has-${id}`, { isBookmarked: this.data.hasBookmark(view.webContents.getURL(), args.isPrivate) });
@@ -578,15 +541,13 @@ module.exports = class MainWindow extends BrowserWindow {
 
     fixDragging = () => {
         const bounds = this.getBounds();
-        this.setBounds({
-            height: bounds.height + 1,
-        });
+        this.setBounds({ height: bounds.height + 1 });
         this.setBounds(bounds);
     }
 
     fixBounds = () => {
-        if (this.getBrowserViews()[0] == undefined) return;
         const view = this.getBrowserViews()[0];
+        if (this.isNullOrUndefined(view)) return;
 
         const { width, height } = this.getContentBounds();
 
@@ -633,8 +594,8 @@ module.exports = class MainWindow extends BrowserWindow {
     }
 
     getHeight = (b, height) => {
-        if (this.getBrowserViews()[0] == undefined) return;
         const view = this.getBrowserViews()[0];
+        if (this.isNullOrUndefined(view)) return;
 
         const titleBarHeight = 37;
         const toolBarHeight = 40;
@@ -679,7 +640,7 @@ module.exports = class MainWindow extends BrowserWindow {
 
                 let req = https.request(options, (res) => {
                     let certificate = res.connection.getPeerCertificate();
-                    if (certificate.subject == null) return;
+                    if (this.isNullOrUndefined(certificate.subject)) return;
 
                     console.log(certificate);
 
@@ -693,15 +654,18 @@ module.exports = class MainWindow extends BrowserWindow {
         });
     }
 
+    findView = (id) => this.views.filter(item => !this.isNullOrUndefined(item.view.webContents)).find(item => item.view.webContents.id === id);
+    findViewIndex = (id) => this.views.filter(item => !this.isNullOrUndefined(item.view.webContents)).findIndex(item => item.view.webContents.id === id);
+
     addView = (url = userConfig.get('homePage.newTab.defaultPage'), isActive = true) => {
         this.addTab(url, isActive);
     }
 
     removeView = (id = this.tabId) => {
-        const item = this.views.find(item => item.view.webContents.id === id);
-        if (item == null) return;
+        const item = this.findView(id);
+        if (this.isNullOrUndefined(item)) return;
 
-        const index = this.views.findIndex(item => item.view.webContents.id === id);
+        const index = this.findViewIndex(id);
 
         if (index + 1 < this.views.length) {
             this.__selectView(index + 1);
@@ -709,13 +673,13 @@ module.exports = class MainWindow extends BrowserWindow {
             this.__selectView(index - 1);
         }
 
-        this.views[index].view.destroy();
+        item.view.webContents.destroy();
         this.views.splice(index, 1);
     }
 
     selectView = (id) => {
-        const item = this.views.find(item => item.view.webContents.id === id);
-        if (item == null) return;
+        const item = this.findView(id);
+        if (this.isNullOrUndefined(item)) return;
 
         this.tabId = id;
 
@@ -730,6 +694,7 @@ module.exports = class MainWindow extends BrowserWindow {
 
     __selectView = (i) => {
         const item = this.views[i];
+        if (this.isNullOrUndefined(item) || this.isNullOrUndefined(item.view) || this.isNullOrUndefined(item.view.webContents)) return;
 
         this.tabId = item.id;
 
@@ -751,8 +716,8 @@ module.exports = class MainWindow extends BrowserWindow {
     }
 
     getView = (id) => {
-        const item = this.views.find(item => item.view.webContents.id === id);
-        if (item == null) return;
+        const item = this.findView(id);
+        if (this.isNullOrUndefined(item)) return;
 
         const url = item.view.webContents.getURL();
 
@@ -772,7 +737,7 @@ module.exports = class MainWindow extends BrowserWindow {
 
         let datas = [];
 
-        this.views.map((item) => {
+        this.views.filter((item) => !this.isNullOrUndefined(item.view.webContents)).map((item) => {
             const id = item.view.webContents.id;
             const title = item.view.webContents.getTitle();
             const url = item.view.webContents.getURL();
@@ -785,7 +750,7 @@ module.exports = class MainWindow extends BrowserWindow {
         this.webContents.send(`tab-get-${this.windowId}`, { views: datas });
 
 
-        this.views.map((item) => {
+        this.views.filter((item) => !this.isNullOrUndefined(item.view.webContents)).map((item) => {
             const id = item.view.webContents.id;
             const title = item.view.webContents.getTitle();
             const url = item.view.webContents.getURL();
@@ -821,13 +786,12 @@ module.exports = class MainWindow extends BrowserWindow {
         const id = view.webContents.id;
         this.tabId = id;
 
-        const executeJs = this.getRandString(12);
         let viewId = '';
 
         userConfig.get('adBlock.isEnabled') ? runAdblockService(partition) : stopAdblockService(partition);
 
         view.webContents.on('did-start-loading', () => {
-            if (view.isDestroyed()) return;
+            if (view.webContents.isDestroyed()) return;
 
             this.webContents.send(`browserView-start-loading-${this.windowId}`, { id });
 
@@ -846,7 +810,7 @@ module.exports = class MainWindow extends BrowserWindow {
             }
         });
         view.webContents.on('did-stop-loading', () => {
-            if (view.isDestroyed()) return;
+            if (view.webContents.isDestroyed()) return;
 
             this.webContents.send(`browserView-stop-loading-${this.windowId}`, { id });
             this.updateState(view);
@@ -856,7 +820,7 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         view.webContents.on('did-start-navigation', async (e, url, isInPlace, isMainFrame, processId, routingId) => {
-            if (view.isDestroyed()) return;
+            if (view.webContents.isDestroyed()) return;
 
             if (isMainFrame) {
                 this.infoWindow.hide();
@@ -895,7 +859,7 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         view.webContents.on('did-finish-load', (e) => {
-            if (view.isDestroyed()) return;
+            if (view.webContents.isDestroyed()) return;
 
             viewId = this.getRandString(12);
 
@@ -907,13 +871,13 @@ module.exports = class MainWindow extends BrowserWindow {
             this.getZoom(id);
         });
         view.webContents.on('did-fail-load', (e, code, description, url, isMainFrame, processId, routingId) => {
-            if (view.isDestroyed() || !isMainFrame || code === -3) return;
+            if (view.webContents.isDestroyed() || !isMainFrame || code === -3) return;
 
             view.webContents.loadURL(`${protocolStr}://error/#${description}/${encodeURIComponent(url)}`);
         });
 
         view.webContents.on('page-title-updated', (e, title) => {
-            if (view.isDestroyed()) return;
+            if (view.webContents.isDestroyed()) return;
 
             if (!String(this.windowId).startsWith('private') && !(view.webContents.getURL().startsWith(`${protocolStr}://`) || view.webContents.getURL().startsWith(`${fileProtocolStr}://`)))
                 this.data.updateHistory(title, view.webContents.getURL());
@@ -923,7 +887,7 @@ module.exports = class MainWindow extends BrowserWindow {
             this.getZoom(id);
         });
         view.webContents.on('page-favicon-updated', (e, favicons) => {
-            if (view.isDestroyed()) return;
+            if (view.webContents.isDestroyed()) return;
 
             if (!(view.webContents.getURL().startsWith(`${protocolStr}://`) || view.webContents.getURL().startsWith(`${fileProtocolStr}://`))) {
                 imageDataURI.encodeFromURL(favicons[0]).then((favicon) => {
@@ -937,7 +901,7 @@ module.exports = class MainWindow extends BrowserWindow {
             this.getZoom(id);
         });
         view.webContents.on('did-change-theme-color', (e, color) => {
-            if (view.isDestroyed()) return;
+            if (view.webContents.isDestroyed()) return;
 
             this.setTitle(`${view.webContents.getTitle()} - ${app_name}`);
 
@@ -979,7 +943,7 @@ module.exports = class MainWindow extends BrowserWindow {
         })
 
         view.webContents.on('new-window', (e, url, frameName, disposition, options) => {
-            if (view.isDestroyed()) return;
+            if (view.webContents.isDestroyed()) return;
 
             if (disposition === 'new-window') {
                 if (frameName === '_self') {
@@ -1052,159 +1016,153 @@ module.exports = class MainWindow extends BrowserWindow {
         });
 
         view.webContents.on('context-menu', (e, params) => {
-            if (view.isDestroyed()) return;
+            if (view.webContents.isDestroyed()) return;
 
             let menu;
             if (params.linkURL !== '' && !params.hasImageContents) {
                 menu = Menu.buildFromTemplate(
-                    [{
-                        label: lang.window.view.contextMenu.link.newTab,
-                        click: () => { this.addView(params.linkURL, false); }
-                    },
-                    {
-                        label: lang.window.view.contextMenu.link.newWindow,
-                        click: () => { this.application.addWindow(false, [params.linkURL]); }
-                    },
-                    {
-                        label: lang.window.view.contextMenu.link.openPrivateWindow,
-                        click: () => { this.application.addWindow(true, [params.linkURL]); }
-                    },
-                    { type: 'separator' },
-                    {
-                        label: lang.window.view.contextMenu.link.copy,
-                        icon: `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/copy.png`,
-                        accelerator: 'CmdOrCtrl+C',
-                        click: () => {
-                            clipboard.clear();
-                            clipboard.writeText(params.linkURL);
+                    [
+                        {
+                            label: lang.window.view.contextMenu.link.newTab,
+                            click: () => { this.addView(params.linkURL, false); }
+                        },
+                        {
+                            label: lang.window.view.contextMenu.link.newWindow,
+                            click: () => { this.application.addWindow(false, [params.linkURL]); }
+                        },
+                        {
+                            label: lang.window.view.contextMenu.link.openPrivateWindow,
+                            click: () => { this.application.addWindow(true, [params.linkURL]); }
+                        },
+                        { type: 'separator' },
+                        {
+                            label: lang.window.view.contextMenu.link.copy,
+                            icon: `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/copy.png`,
+                            accelerator: 'CmdOrCtrl+C',
+                            click: () => {
+                                clipboard.clear();
+                                clipboard.writeText(params.linkURL);
+                            }
+                        },
+                        { type: 'separator' },
+                        {
+                            label: lang.window.view.contextMenu.devTool,
+                            accelerator: 'CmdOrCtrl+Shift+I',
+                            enabled: !view.webContents.getURL().startsWith(`${protocolStr}://`),
+                            click: () => {
+                                view.webContents.isDevToolsOpened() ? view.webContents.devToolsWebContents.focus() : view.webContents.openDevTools();
+                            }
                         }
-                    },
-                    { type: 'separator' },
-                    {
-                        label: lang.window.view.contextMenu.devTool,
-                        accelerator: 'CmdOrCtrl+Shift+I',
-                        enabled: !view.webContents.getURL().startsWith(`${protocolStr}://`),
-                        click: () => {
-                            if (view.webContents.isDevToolsOpened())
-                                view.webContents.devToolsWebContents.focus();
-                            else
-                                view.webContents.openDevTools();
-                        }
-                    }
                     ]
                 );
             } else if (params.linkURL === '' && params.hasImageContents) {
                 menu = Menu.buildFromTemplate(
-                    [{
-                        label: lang.window.view.contextMenu.image.newTab,
-                        click: () => {
-                            this.addView(params.srcURL, false);
-                        }
-                    },
-                    {
-                        label: lang.window.view.contextMenu.image.saveImage,
-                        enabled: !view.webContents.getURL().startsWith(`${protocolStr}://`),
-                        click: () => {
-                            view.webContents.downloadURL(params.srcURL);
-                        }
-                    },
-                    {
-                        label: lang.window.view.contextMenu.image.copyImage,
-                        icon: `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/copy.png`,
-                        click: () => {
-                            const img = nativeImage.createFromDataURL(params.srcURL);
+                    [
+                        {
+                            label: lang.window.view.contextMenu.image.newTab,
+                            click: () => {
+                                this.addView(params.srcURL, false);
+                            }
+                        },
+                        {
+                            label: lang.window.view.contextMenu.image.saveImage,
+                            enabled: !view.webContents.getURL().startsWith(`${protocolStr}://`),
+                            click: () => {
+                                view.webContents.downloadURL(params.srcURL);
+                            }
+                        },
+                        {
+                            label: lang.window.view.contextMenu.image.copyImage,
+                            icon: `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/copy.png`,
+                            click: () => {
+                                const img = nativeImage.createFromDataURL(params.srcURL);
 
-                            clipboard.clear();
-                            clipboard.writeImage(img);
+                                clipboard.clear();
+                                clipboard.writeImage(img);
+                            }
+                        },
+                        {
+                            label: lang.window.view.contextMenu.image.copyLink,
+                            click: () => {
+                                clipboard.clear();
+                                clipboard.writeText(params.srcURL);
+                            }
+                        },
+                        { type: 'separator' },
+                        {
+                            label: lang.window.view.contextMenu.devTool,
+                            accelerator: 'CmdOrCtrl+Shift+I',
+                            enabled: !view.webContents.getURL().startsWith(`${protocolStr}://`),
+                            click: () => {
+                                view.webContents.isDevToolsOpened() ? view.webContents.devToolsWebContents.focus() : view.webContents.openDevTools();
+                            }
                         }
-                    },
-                    {
-                        label: lang.window.view.contextMenu.image.copyLink,
-                        click: () => {
-                            clipboard.clear();
-                            clipboard.writeText(params.srcURL);
-                        }
-                    },
-                    { type: 'separator' },
-                    {
-                        label: lang.window.view.contextMenu.devTool,
-                        accelerator: 'CmdOrCtrl+Shift+I',
-                        enabled: !view.webContents.getURL().startsWith(`${protocolStr}://`),
-                        click: () => {
-                            if (view.webContents.isDevToolsOpened())
-                                view.webContents.devToolsWebContents.focus();
-                            else
-                                view.webContents.openDevTools();
-                        }
-                    }
                     ]
                 );
             } else if (params.linkURL !== '' && params.hasImageContents) {
                 menu = Menu.buildFromTemplate(
-                    [{
-                        label: lang.window.view.contextMenu.link.newTab,
-                        click: () => { this.addView(params.linkURL, false); }
-                    },
-                    {
-                        label: lang.window.view.contextMenu.link.newWindow,
-                        click: () => { this.application.addWindow(false, [params.linkURL]); }
-                    },
-                    {
-                        label: lang.window.view.contextMenu.link.openPrivateWindow,
-                        click: () => { this.application.addWindow(true, [params.linkURL]); }
-                    },
-                    { type: 'separator' },
-                    {
-                        label: lang.window.view.contextMenu.link.copy,
-                        icon: `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/copy.png`,
-                        accelerator: 'CmdOrCtrl+C',
-                        click: () => {
-                            clipboard.clear();
-                            clipboard.writeText(params.linkURL);
-                        }
-                    },
-                    { type: 'separator' },
-                    {
-                        label: lang.window.view.contextMenu.image.newTab,
-                        click: () => {
-                            this.addView(params.srcURL, false);
-                        }
-                    },
-                    {
-                        label: lang.window.view.contextMenu.image.saveImage,
-                        enabled: !view.webContents.getURL().startsWith(`${protocolStr}://`),
-                        click: () => {
-                            view.webContents.downloadURL(params.srcURL);
-                        }
-                    },
-                    {
-                        label: lang.window.view.contextMenu.image.copyImage,
-                        click: () => {
-                            const img = nativeImage.createFromDataURL(params.srcURL);
+                    [
+                        {
+                            label: lang.window.view.contextMenu.link.newTab,
+                            click: () => { this.addView(params.linkURL, false); }
+                        },
+                        {
+                            label: lang.window.view.contextMenu.link.newWindow,
+                            click: () => { this.application.addWindow(false, [params.linkURL]); }
+                        },
+                        {
+                            label: lang.window.view.contextMenu.link.openPrivateWindow,
+                            click: () => { this.application.addWindow(true, [params.linkURL]); }
+                        },
+                        { type: 'separator' },
+                        {
+                            label: lang.window.view.contextMenu.link.copy,
+                            icon: `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/copy.png`,
+                            accelerator: 'CmdOrCtrl+C',
+                            click: () => {
+                                clipboard.clear();
+                                clipboard.writeText(params.linkURL);
+                            }
+                        },
+                        { type: 'separator' },
+                        {
+                            label: lang.window.view.contextMenu.image.newTab,
+                            click: () => {
+                                this.addView(params.srcURL, false);
+                            }
+                        },
+                        {
+                            label: lang.window.view.contextMenu.image.saveImage,
+                            enabled: !view.webContents.getURL().startsWith(`${protocolStr}://`),
+                            click: () => {
+                                view.webContents.downloadURL(params.srcURL);
+                            }
+                        },
+                        {
+                            label: lang.window.view.contextMenu.image.copyImage,
+                            click: () => {
+                                const img = nativeImage.createFromDataURL(params.srcURL);
 
-                            clipboard.clear();
-                            clipboard.writeImage(img);
+                                clipboard.clear();
+                                clipboard.writeImage(img);
+                            }
+                        },
+                        {
+                            label: lang.window.view.contextMenu.image.copyLink,
+                            click: () => {
+                                clipboard.clear();
+                                clipboard.writeText(params.srcURL);
+                            }
+                        },
+                        { type: 'separator' },
+                        {
+                            label: lang.window.view.contextMenu.devTool,
+                            accelerator: 'CmdOrCtrl+Shift+I',
+                            enabled: !view.webContents.getURL().startsWith(`${protocolStr}://`),
+                            click: () => {
+                                view.webContents.isDevToolsOpened() ? view.webContents.devToolsWebContents.focus() : view.webContents.openDevTools();
+                            }
                         }
-                    },
-                    {
-                        label: lang.window.view.contextMenu.image.copyLink,
-                        click: () => {
-                            clipboard.clear();
-                            clipboard.writeText(params.srcURL);
-                        }
-                    },
-                    { type: 'separator' },
-                    {
-                        label: lang.window.view.contextMenu.devTool,
-                        accelerator: 'CmdOrCtrl+Shift+I',
-                        enabled: !view.webContents.getURL().startsWith(`${protocolStr}://`),
-                        click: () => {
-                            if (view.webContents.isDevToolsOpened())
-                                view.webContents.devToolsWebContents.focus();
-                            else
-                                view.webContents.openDevTools();
-                        }
-                    }
                     ]
                 );
             } else if (params.isEditable) {
@@ -1283,10 +1241,7 @@ module.exports = class MainWindow extends BrowserWindow {
                             accelerator: 'CmdOrCtrl+Shift+I',
                             enabled: !view.webContents.getURL().startsWith(`${protocolStr}://`),
                             click: () => {
-                                if (view.webContents.isDevToolsOpened())
-                                    view.webContents.devToolsWebContents.focus();
-                                else
-                                    view.webContents.openDevTools();
+                                view.webContents.isDevToolsOpened() ? view.webContents.devToolsWebContents.focus() : view.webContents.openDevTools();
                             }
                         }
                     ]
@@ -1483,10 +1438,7 @@ module.exports = class MainWindow extends BrowserWindow {
                             accelerator: 'CmdOrCtrl+Shift+I',
                             enabled: !view.webContents.getURL().startsWith(`${protocolStr}://`),
                             click: () => {
-                                if (view.webContents.isDevToolsOpened())
-                                    view.webContents.devToolsWebContents.focus();
-                                else
-                                    view.webContents.openDevTools();
+                                view.webContents.isDevToolsOpened() ? view.webContents.devToolsWebContents.focus() : view.webContents.openDevTools();
                             }
                         }
                     ]
@@ -1500,7 +1452,7 @@ module.exports = class MainWindow extends BrowserWindow {
             if (id !== webContents.id) return;
 
             const str = this.getRandString(12);
-            if (item.getMimeType() == 'application/pdf') {
+            if (item.getMimeType() === 'application/pdf') {
                 item.savePath = join(app.getPath('userData'), 'Users', config.get('currentUser'), `${item.getFilename()}.pdf`);
 
                 item.once('done', (e, state) => {
@@ -1576,7 +1528,7 @@ module.exports = class MainWindow extends BrowserWindow {
 
     getColor = (view) => {
         return new Promise((resolve, reject) => {
-            if (view !== null && !view.isDestroyed() && view.webContents !== null) {
+            if (view !== null && !view.webContents.isDestroyed() && view.webContents !== null) {
                 view.webContents.executeJavaScript(
                     `(function () {
                         const heads = document.head.children;
@@ -1587,7 +1539,7 @@ module.exports = class MainWindow extends BrowserWindow {
                         } 
                     })()`,
                     false,
-                    async (result) => resolve(result !== null ? result : userConfig.get('design.tabAccentColor'))
+                    async (result) => resolve(result ?? userConfig.get('design.tabAccentColor'))
                 );
             } else {
                 reject(new Error('WebContents are not available'));
@@ -1598,12 +1550,11 @@ module.exports = class MainWindow extends BrowserWindow {
     getZoom = (id) => {
         if (this.isDestroyed()) return;
 
-        const item = this.views.find(item => item.view.webContents.id === id);
-        if (item == null) return;
+        const item = this.findView(id);
+        if (this.isNullOrUndefined(item)) return;
 
         let webContents = item.view.webContents;
 
-        console.log(webContents.zoomFactor);
         this.webContents.send(`browserView-zoom-${this.windowId}`, { result: webContents.zoomFactor });
         this.webContents.send(`browserView-zoom-menu-${this.windowId}`, { result: webContents.zoomFactor });
     }
@@ -1621,7 +1572,7 @@ module.exports = class MainWindow extends BrowserWindow {
     }
 
     updateNavigationState = (view) => {
-        if (this.isDestroyed() || view.isDestroyed()) return;
+        if (this.isDestroyed() || view.webContents.isDestroyed()) return;
 
         this.webContents.send(`update-navigation-state-${this.windowId}`, {
             id: view.webContents.id,
@@ -1632,7 +1583,7 @@ module.exports = class MainWindow extends BrowserWindow {
     }
 
     updateViewState = (view, url = undefined) => {
-        if (this.isDestroyed() || view.isDestroyed()) return;
+        if (this.isDestroyed() || view.webContents.isDestroyed()) return;
 
         const title = view.webContents.getTitle();
         const color = userConfig.get('design.tabAccentColor');
@@ -1724,8 +1675,8 @@ module.exports = class MainWindow extends BrowserWindow {
                         label: lang.main.file.savePage,
                         accelerator: 'CmdOrCtrl+S',
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
                             const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
 
                             dialog.showSaveDialog({
                                 defaultPath: `${app.getPath('downloads')}/${view.webContents.getTitle()}`,
@@ -1746,8 +1697,8 @@ module.exports = class MainWindow extends BrowserWindow {
                         label: lang.main.file.print,
                         accelerator: 'CmdOrCtrl+P',
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
                             const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
 
                             view.webContents.print();
                         }
@@ -1757,7 +1708,9 @@ module.exports = class MainWindow extends BrowserWindow {
                         label: lang.main.file.settings,
                         accelerator: 'CmdOrCtrl+,',
                         click: () => {
-                            if (this.getBrowserView() == undefined) return;
+                            const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
+
                             this.addTabOrLoadUrl(this.getBrowserView(), `${protocolStr}://settings/`, true);
                         }
                     },
@@ -1851,8 +1804,8 @@ module.exports = class MainWindow extends BrowserWindow {
                         label: lang.main.view.viewSource,
                         accelerator: 'CmdOrCtrl+U',
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
                             const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
 
                             windowManager.getCurrentWindow().addView(`view-source:${view.webContents.getURL()}`, true);
                         }
@@ -1862,13 +1815,10 @@ module.exports = class MainWindow extends BrowserWindow {
                         label: lang.main.view.devTool,
                         accelerator: 'CmdOrCtrl+Shift+I',
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
                             const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
 
-                            if (view.webContents.isDevToolsOpened())
-                                view.webContents.closeDevTools();
-                            else
-                                view.webContents.openDevTools();
+                            view.webContents.isDevToolsOpened() ? view.webContents.closeDevTools() : view.webContents.openDevTools();
                         }
                     },
                     {
@@ -1876,13 +1826,10 @@ module.exports = class MainWindow extends BrowserWindow {
                         accelerator: 'F12',
                         visible: false,
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
                             const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
 
-                            if (view.webContents.isDevToolsOpened())
-                                view.webContents.closeDevTools();
-                            else
-                                view.webContents.openDevTools();
+                            view.webContents.isDevToolsOpened() ? view.webContents.closeDevTools() : view.webContents.openDevTools();
                         }
                     },
                     {
@@ -1904,8 +1851,8 @@ module.exports = class MainWindow extends BrowserWindow {
                         icon: !platform.isDarwin ? `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/arrow_back.png` : null,
                         accelerator: !platform.isDarwin ? 'Alt+Left' : 'Cmd+[',
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
                             const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
 
                             const url = view.webContents.getURL();
 
@@ -1922,8 +1869,8 @@ module.exports = class MainWindow extends BrowserWindow {
                         icon: !platform.isDarwin ? `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/arrow_forward.png` : null,
                         accelerator: !platform.isDarwin ? 'Alt+Right' : 'Cmd+]',
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
                             const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
 
                             const url = view.webContents.getURL();
 
@@ -1941,13 +1888,10 @@ module.exports = class MainWindow extends BrowserWindow {
                         icon: !platform.isDarwin ? `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/refresh.png` : null,
                         accelerator: 'CmdOrCtrl+R',
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
                             const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
 
-                            if (!view.webContents.isLoadingMainFrame())
-                                view.webContents.reload();
-                            else
-                                view.webContents.stop();
+                            !view.webContents.isLoadingMainFrame() ? view.webContents.reload() : view.webContents.stop();
                         }
                     },
                     {
@@ -1955,26 +1899,20 @@ module.exports = class MainWindow extends BrowserWindow {
                         accelerator: 'F5',
                         visible: false,
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
                             const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
 
-                            if (!view.webContents.isLoadingMainFrame())
-                                view.webContents.reload();
-                            else
-                                view.webContents.stop();
+                            !view.webContents.isLoadingMainFrame() ? view.webContents.reload() : view.webContents.stop();
                         }
                     },
                     {
                         label: lang.main.navigate.reloadIgnoringCache,
                         accelerator: 'CmdOrCtrl+Shift+R',
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
                             const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
 
-                            if (!view.webContents.isLoadingMainFrame())
-                                view.webContents.reloadIgnoringCache();
-                            else
-                                view.webContents.stop();
+                            !view.webContents.isLoadingMainFrame() ? view.webContents.reloadIgnoringCache() : view.webContents.stop();
                         }
                     },
                     { type: 'separator' },
@@ -1982,8 +1920,8 @@ module.exports = class MainWindow extends BrowserWindow {
                         label: lang.main.navigate.home,
                         accelerator: !platform.isDarwin ? 'Alt+Home' : 'Cmd+Shift+H',
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
                             const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
 
                             view.webContents.loadURL(userConfig.get('homePage.homeButton.isDefaultHomePage') ? `${protocolStr}://home/` : userConfig.get('homePage.homeButton.defaultPage'));
                         }
@@ -1994,8 +1932,10 @@ module.exports = class MainWindow extends BrowserWindow {
                         icon: !platform.isDarwin ? `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/bookmarks.png` : null,
                         accelerator: !platform.isDarwin ? 'Ctrl+B' : 'Cmd+B',
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
-                            this.addTabOrLoadUrl(this.getBrowserViews()[0], `${protocolStr}://bookmarks/`, true);
+                            const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
+
+                            this.addTabOrLoadUrl(view, `${protocolStr}://bookmarks/`, true);
                         }
                     },
                     {
@@ -2003,17 +1943,21 @@ module.exports = class MainWindow extends BrowserWindow {
                         icon: !platform.isDarwin ? `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/history.png` : null,
                         accelerator: !platform.isDarwin ? 'Ctrl+H' : 'Cmd+Y',
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
-                            this.addTabOrLoadUrl(this.getBrowserViews()[0], `${protocolStr}://history/`, true);
+                            const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
+
+                            this.addTabOrLoadUrl(view, `${protocolStr}://history/`, true);
                         }
                     },
                     {
                         label: lang.main.navigate.downloads,
                         icon: !platform.isDarwin ? `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/download.png` : null,
-                        accelerator: !platform.isDarwin ? 'Ctrl+B' : 'Cmd+D',
+                        accelerator: !platform.isDarwin ? 'Ctrl+D' : 'Cmd+D',
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
-                            this.addTabOrLoadUrl(this.getBrowserViews()[0], `${protocolStr}://downloads/`, true);
+                            const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
+
+                            this.addTabOrLoadUrl(view, `${protocolStr}://downloads/`, true);
                         }
                     }
                 ]
@@ -2027,8 +1971,10 @@ module.exports = class MainWindow extends BrowserWindow {
                         icon: !platform.isDarwin ? `${app.getAppPath()}/static/${this.getTheme() ? 'dark' : 'light'}/help_outline.png` : null,
                         accelerator: 'F1',
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
-                            this.addTabOrLoadUrl(this.getBrowserViews()[0], `${protocolStr}://help/`, true);
+                            const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
+
+                            this.addTabOrLoadUrl(view, `${protocolStr}://help/`, true);
                         }
                     },
                     { type: 'separator' },
@@ -2041,8 +1987,10 @@ module.exports = class MainWindow extends BrowserWindow {
                     {
                         label: lang.main.help.about,
                         click: () => {
-                            if (this.getBrowserViews()[0] == undefined) return;
-                            this.addTabOrLoadUrl(this.getBrowserViews()[0], `${protocolStr}://settings/about`, true);
+                            const view = this.getBrowserViews()[0];
+                            if (this.isNullOrUndefined(view)) return;
+
+                            this.addTabOrLoadUrl(view, `${protocolStr}://settings/about`, true);
                         }
                     }
                 ]
@@ -2064,17 +2012,6 @@ module.exports = class MainWindow extends BrowserWindow {
             return false;
         else if (userTheme === 'dark' || baseTheme === 'dark')
             return true;
-    }
-
-    getRandString = (length) => {
-        const char = 'abcdefghijklmnopqrstuvwxyz0123456789';
-        const charLength = char.length;
-
-        let str = '';
-        for (var i = 0; i < length; i++)
-            str += char[Math.floor(Math.random() * charLength)];
-
-        return str;
     }
 
     loadSessionAndProtocol = (partition, isPrivate = false) => {
@@ -2147,4 +2084,19 @@ module.exports = class MainWindow extends BrowserWindow {
             });
         }
     }
+
+
+    getRandString = (length) => {
+        const char = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        const charLength = char.length;
+
+        let str = '';
+        for (var i = 0; i < length; i++)
+            str += char[Math.floor(Math.random() * charLength)];
+
+        return str;
+    }
+
+    isNullOrUndefined = (obj) => obj === undefined || obj === null;
+    isEmptyOrDestroy = (obj) => this.isNullOrUndefined(obj) || obj.isDestroyed() || obj.webContents.isDestroyed();
 }

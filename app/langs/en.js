@@ -334,7 +334,7 @@ module.exports = {
                 table: {
                     title: 'Title',
                     url: 'URL',
-                    date: 'Viewing date'
+                    date: 'Created at'
                 }
             },
             history: {
@@ -342,7 +342,7 @@ module.exports = {
                 table: {
                     title: 'Title',
                     url: 'URL',
-                    date: 'Add date'
+                    date: 'Viewed at'
                 }
             },
             downloads: {
@@ -351,7 +351,7 @@ module.exports = {
                     title: 'Title',
                     url: 'URL',
                     status: 'Status',
-                    date: 'Start date'
+                    date: 'Downloaded at'
                 }
             },
         },
@@ -361,7 +361,7 @@ module.exports = {
             table: {
                 title: 'Title',
                 url: 'URL',
-                date: 'Add date'
+                date: 'Created at'
             }
         },
         history: {
@@ -436,7 +436,7 @@ module.exports = {
                             }
                         },
                         titleBar: {
-                            name: 'Use custom title bar',
+                            name: 'Use custom title bar (Restart required)',
                             controls: {
                                 restart: 'Restart'
                             }
@@ -489,6 +489,10 @@ module.exports = {
                         defaultSearchEngine: 'Search engines used in the address bar and on the home page'
                     }
                 },
+                privacy: {
+                    title: 'Privacy',
+                    controls: {}
+                },
                 pageSettings: {
                     title: 'Page Settings',
                     controls: {
@@ -497,8 +501,8 @@ module.exports = {
                         allow: 'Allow',
                         deny: 'Deny',
 
-                        viewDatas: 'すべてのサイトに保存されている権限を表示',
-                        datas: 'すべてのサイト',
+                        viewDatas: 'View stored permissions on all sites',
+                        datas: 'All Sites',
 
                         default: 'Default',
 
@@ -524,21 +528,30 @@ module.exports = {
                         pdfDocuments: {
                             name: 'PDF Documents',
                             controls: {
-                                defaultDownload: 'PDF ファイルを ${app_name} で自動的に開く代わりにダウンロードする'
+                                isDownload: `Download the PDF file instead of opening it automatically with ${app_name}`,
+                                useNewViewer: 'Use new PDF Viewer (Restart required)'
                             }
                         }
                     }
+                },
+                downloads: {
+                    title: 'Downloads',
+                    controls: {}
+                },
+                languages: {
+                    title: 'Languages',
+                    controls: {}
                 },
                 about: {
                     title: `About ${app_name}`,
                     controls: {
                         updates: {
-                            checking: 'アップデートを確認しています。しばらくお待ちください…',
-                            available: 'アップデートが見つかりました。更新しようとしています…',
-                            notAvailable: `${app_name} は最新版です。更新の必要はありません。`,
-                            error: 'アップデートを確認できませんでした。しばらく経ってから再度お試しください。',
-                            downloading: 'アップデートをダウンロードしています。しばらくお待ちください…',
-                            downloaded: `再起動して ${app_name} のアップデートを適用してください。`
+                            checking: 'Checking for updates. Please wait...',
+                            available: 'Update found. Trying to update...',
+                            notAvailable: `${app_name} is latest version. No need to update.`,
+                            error: 'We could not confirm the update. Please try again in a while.',
+                            downloading: 'Downloading update. Please wait a moment...',
+                            downloaded: `Restart and apply the update to ${app_name}.`
                         },
                         version: 'Version',
                         reset: {

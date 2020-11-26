@@ -27,6 +27,9 @@ module.exports = class WindowManager {
 
         this.defualtConfig = defualtConfig;
 
+        if (userConfig.get('pageSettings.contents.pdfDocuments.useNewViewer', false))
+            app.commandLine.appendSwitch('enable-features', 'PDFViewerUpdate');
+
         this.data = new Data({
             pageSettings: new Datastore({
                 filename: path.join(app.getPath('userData'), 'Users', config.get('currentUser'), 'PageSettings.db'),

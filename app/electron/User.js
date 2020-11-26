@@ -213,7 +213,10 @@ module.exports = class User {
                 },
                 contents: {
                     zoomLevel: 1,
-                    pdfDocuments: true
+                    pdfDocuments: {
+                        isDownload: false,
+                        useNewViewer: false
+                    }
                 },
                 pages: {
                     twitter: {

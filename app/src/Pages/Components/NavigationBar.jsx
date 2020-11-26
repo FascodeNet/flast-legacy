@@ -278,9 +278,9 @@ class NavigationBar extends Component {
                                 </ListItem>
                             </RouterLink>
                             <RouterLink className={classes.link}>
-                                <ListItem button disabled>
+                                <ListItem button selected={window.location.href === 'flast://settings/privacy'} disabled>
                                     <ListItemIcon><LockOutlinedIcon /></ListItemIcon>
-                                    <ListItemText primary="プライバシー" />
+                                    <ListItemText primary={this.settings.sections.privacy.title} />
                                 </ListItem>
                             </RouterLink>
                             <RouterLink className={classes.link} to="/pageSettings">
@@ -290,15 +290,15 @@ class NavigationBar extends Component {
                                 </ListItem>
                             </RouterLink>
                             <RouterLink className={classes.link}>
-                                <ListItem button disabled>
+                                <ListItem button selected={window.location.href === 'flast://settings/downloads'} disabled>
                                     <ListItemIcon><GetAppOutlinedIcon /></ListItemIcon>
-                                    <ListItemText primary="ダウンロード" />
+                                    <ListItemText primary={this.settings.sections.downloads.title} />
                                 </ListItem>
                             </RouterLink>
                             <RouterLink className={classes.link}>
-                                <ListItem button disabled>
+                                <ListItem button selected={window.location.href === 'flast://settings/languages'} disabled>
                                     <ListItemIcon><TranslateOutlinedIcon /></ListItemIcon>
-                                    <ListItemText primary="言語" />
+                                    <ListItemText primary={this.settings.sections.languages.title} />
                                 </ListItem>
                             </RouterLink>
                         </List>

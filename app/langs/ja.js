@@ -363,7 +363,7 @@ module.exports = {
             table: {
                 title: 'タイトル',
                 url: 'URL',
-                date: '追加日時'
+                date: '登録日時'
             }
         },
         history: {
@@ -438,7 +438,7 @@ module.exports = {
                             }
                         },
                         titleBar: {
-                            name: 'カスタム タイトルバーを使用する',
+                            name: 'カスタム タイトルバーを使用する (再起動が必要)',
                             controls: {
                                 restart: '再起動'
                             }
@@ -491,6 +491,10 @@ module.exports = {
                         defaultSearchEngine: 'アドレスバーとホームページで使用する検索エンジン'
                     }
                 },
+                privacy: {
+                    title: 'プライバシー',
+                    controls: {}
+                },
                 pageSettings: {
                     title: 'ページ設定',
                     controls: {
@@ -526,10 +530,19 @@ module.exports = {
                         pdfDocuments: {
                             name: 'PDF ドキュメント',
                             controls: {
-                                defaultDownload: 'PDF ファイルを ${app_name} で自動的に開く代わりにダウンロードする'
+                                isDownload: `PDF ファイルを ${app_name} で自動的に開く代わりにダウンロードする`,
+                                useNewViewer: '新しいPDF ビューアーを使用する (再起動が必要)'
                             }
                         }
                     }
+                },
+                downloads: {
+                    title: 'ダウンロード',
+                    controls: {}
+                },
+                languages: {
+                    title: '言語',
+                    controls: {}
                 },
                 about: {
                     title: `${app_name} について`,

@@ -794,6 +794,31 @@ global.setZoomLevel = (v) => {
 }
 
 
+global.getPDFDownload = () => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    return userConfig.get('pageSettings.contents.pdfDocuments.isDownload', false);
+}
+
+global.setPDFDownload = (v) => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    userConfig.set('pageSettings.contents.pdfDocuments.isDownload', v);
+}
+
+global.getUseNewPDFViewer = () => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    return userConfig.get('pageSettings.contents.pdfDocuments.useNewViewer', false);
+}
+
+global.setUseNewPDFViewer = (v) => {
+    if (location.protocol !== `${protocolStr}:` && location.protocol !== `${fileProtocolStr}:`) return;
+
+    userConfig.set('pageSettings.contents.pdfDocuments.useNewViewer', v);
+}
+
+
 /*
 // ====================================================================== //
 // ====================================================================== //

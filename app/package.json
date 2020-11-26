@@ -1,7 +1,7 @@
 {
   "name": "flast",
   "description": "Cross-platform browser based on Chromium.",
-  "version": "83.0.0",
+  "version": "87.0.0",
   "app_name": "Flast",
   "app_channel": "Stable",
   "app_copyright": "Copyright 2020 Aoichaan0513. All rights reserved.",
@@ -35,7 +35,7 @@
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "7.4.4",
     "@cliqz/adblocker-electron": "1.16.0",
-    "@material-ui/core": "4.11.0",
+    "@material-ui/core": "4.11.1",
     "@material-ui/icons": "4.9.1",
     "@material-ui/lab": "4.0.0-alpha.56",
     "@tippyjs/react": "^4.1.0",
@@ -81,7 +81,7 @@
     "react-moment": "^0.9.7",
     "react-router": "5.2.0",
     "react-router-dom": "5.2.0",
-    "react-scripts": "^3.4.3",
+    "react-scripts": "^4.0.1",
     "react-sortable-pane": "^1.1.0",
     "react-windows-controls": "^1.1.1",
     "request": "^2.88.2",
@@ -95,7 +95,7 @@
     "webpack-cli": "3.3.9"
   },
   "devDependencies": {
-    "electron": "9.3.1"
+    "electron": "11.0.3"
   },
   "eslintConfig": {
     "extends": "react-app"

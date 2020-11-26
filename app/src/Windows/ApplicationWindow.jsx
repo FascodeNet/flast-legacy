@@ -92,7 +92,7 @@ class ApplicationWindow extends Component {
 		});
 
 		webView.addEventListener('context-menu', (e) => {
-			if (webView.isDestroyed()) return;
+			if (webView.webContents.isDestroyed()) return;
 
 			const params = e.params;
 
@@ -230,11 +230,11 @@ class ApplicationWindow extends Component {
 					</WindowButtons>
 					<Toolbar style={{ width: 'fit-content', height: '100%', background: 'transparent', border: 'none', WebkitAppRegion: 'no-drag' }} isDarkModeOrPrivateMode={userConfig.get('design.isDarkTheme')}>
 						<ToolbarButton isDarkModeOrPrivateMode={userConfig.get('design.isDarkTheme')} style={{ height: 'auto' }} src={this.getForegroundColor(themeConfig.window.foreground) === '#000000' ? DarkBackIcon : LightBackIcon} size={24}
-							isShowing={true} isRight={false} isMarginLeft={true} isEnabled={this.webView != undefined ? remote.webContents.fromId(this.webView.getWebContentsId()).canGoBack() : false} title={lang.window.toolBar.back} onClick={() => { remote.webContents.fromId(this.webView.getWebContentsId()).goBack(); this.forceUpdate(); }} />
+							isShowing={true} isRight={false} isMarginLeft={true} isEnabled={this.webView !== undefined ? remote.webContents.fromId(this.webView.getWebContentsId()).canGoBack() : false} title={lang.window.toolBar.back} onClick={() => { remote.webContents.fromId(this.webView.getWebContentsId()).goBack(); this.forceUpdate(); }} />
 						<ToolbarButton isDarkModeOrPrivateMode={userConfig.get('design.isDarkTheme')} style={{ height: 'auto' }} src={this.getForegroundColor(themeConfig.window.foreground) === '#000000' ? DarkForwardIcon : DarkForwardIcon} size={24}
-							isShowing={this.webView != undefined ? remote.webContents.fromId(this.webView.getWebContentsId()).canGoForward() : false} isRight={false} isMarginLeft={false} isEnabled={this.webView != undefined ? remote.webContents.fromId(this.webView.getWebContentsId()).canGoForward() : false} title={lang.window.toolBar.forward} onClick={() => { remote.webContents.fromId(this.webView.getWebContentsId()).goForward(); this.forceUpdate(); }} />
+							isShowing={this.webView !== undefined ? remote.webContents.fromId(this.webView.getWebContentsId()).canGoForward() : false} isRight={false} isMarginLeft={false} isEnabled={this.webView != undefined ? remote.webContents.fromId(this.webView.getWebContentsId()).canGoForward() : false} title={lang.window.toolBar.forward} onClick={() => { remote.webContents.fromId(this.webView.getWebContentsId()).goForward(); this.forceUpdate(); }} />
 						<ToolbarButton isDarkModeOrPrivateMode={userConfig.get('design.isDarkTheme')} style={{ height: 'auto' }} src={this.webView != undefined && remote.webContents.fromId(this.webView.getWebContentsId()).isLoadingMainFrame() ? (this.getForegroundColor(themeConfig.window.foreground) === '#000000' ? DarkCloseIcon : LightCloseIcon) : (this.getForegroundColor(themeConfig.window.foreground) === '#000000' ? DarkReloadIcon : LightReloadIcon)} size={24}
-							isShowing={true} isRight={false} isMarginLeft={false} isEnabled={true} title={this.webView != undefined && remote.webContents.fromId(this.webView.getWebContentsId()).isLoadingMainFrame() ? lang.window.toolBar.reload.stop : lang.window.toolBar.reload.reload} onClick={() => { if (remote.webContents.fromId(this.webView.getWebContentsId()).isLoadingMainFrame()) { remote.webContents.fromId(this.webView.getWebContentsId()).stop(); } else { remote.webContents.fromId(this.webView.getWebContentsId()).reload(); } this.forceUpdate(); }} />
+							isShowing={true} isRight={false} isMarginLeft={false} isEnabled={true} title={this.webView !== undefined && remote.webContents.fromId(this.webView.getWebContentsId()).isLoadingMainFrame() ? lang.window.toolBar.reload.stop : lang.window.toolBar.reload.reload} onClick={() => { if (remote.webContents.fromId(this.webView.getWebContentsId()).isLoadingMainFrame()) { remote.webContents.fromId(this.webView.getWebContentsId()).stop(); } else { remote.webContents.fromId(this.webView.getWebContentsId()).reload(); } this.forceUpdate(); }} />
 					</Toolbar>
 					<span style={{ color: this.getForegroundColor(themeConfig.window.foreground) === '#000000' ? 'white' : 'black', marginLeft: 10, display: 'flex', WebkitBoxAlign: 'center', alignItems: 'center', WebkitBoxPack: 'center', justifyContent: 'center', fontFamily: '"Noto Sans", "Noto Sans JP"' }}>{this.webView != undefined ? remote.webContents.fromId(this.webView.getWebContentsId()).getTitle() : 'Application'}</span>
 					<WindowButtons isMaximized={remote.getCurrentWindow().isMaximized()} isCustomTitlebar={userConfig.get('design.isCustomTitlebar')} isWindowsOrLinux={platform.isWin32 || (!platform.isWin32 && !platform.isDarwin)}>

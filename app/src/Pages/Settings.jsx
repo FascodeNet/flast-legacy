@@ -410,7 +410,7 @@ class SettingsUsersPage extends Component {
                                                             style={{ display: 'none' }}
                                                             onChange={(e) => {
                                                                 window.setAvatar(e.target.files[0].path);
-                                                                location.reload();
+                                                                window.location.reload();
                                                             }}
                                                         />
                                                         <label htmlFor="imageUpload">
@@ -728,7 +728,7 @@ class SettingsDesignPage extends Component {
                                 <div className={classes.itemControlRoot}>
                                     <Button variant="contained" color="primary" startIcon={<PaletteIcon />} onClick={() => this.setState({ isDialogOpened: true })}>{this.section.controls.theme.controls.select}</Button>
                                     <Tooltip title={this.section.controls.theme.controls.openStore}>
-                                        <IconButton size="small" style={{ marginLeft: 5 }} onClick={() => location.href = `${window.getAppURL()}/store/`}>
+                                        <IconButton size="small" style={{ marginLeft: 5 }} onClick={() => window.location.href = `${window.getAppURL()}/store/`}>
                                             <LaunchIcon />
                                         </IconButton>
                                     </Tooltip>
@@ -1501,7 +1501,7 @@ class SettingsPageSettingsAllPage extends Component {
     componentDidMount = () => {
         this.reloadData();
         setInterval(() => this.reloadData(), 1000 * 5);
-        
+
         document.title = `${this.settings.title} » ${this.section.title}`;
     }
 
@@ -1522,7 +1522,7 @@ class SettingsPageSettingsAllPage extends Component {
             items.map((item) => window.getFavicon(item.origin).then((favicon) => datas.push({ origin: item.origin, favicon, type: item.type })));
 
             this.setState({ datas });
-            console.log(this.state.datas);    
+            console.log(this.state.datas);
         });
     }
 
@@ -2079,7 +2079,10 @@ class SettingsPageSettingsContentPage extends Component {
             // Page Settings
             type: this.props.match.params.type,
 
-            defaultZoomLevel: 1
+            defaultZoomLevel: 1,
+
+            isDownload: false,
+            useNewViewer: false
         };
 
         this.settings = window.getLanguageFile().internalPages.settings;
@@ -2089,7 +2092,10 @@ class SettingsPageSettingsContentPage extends Component {
     componentDidMount = () => {
         this.setState({
             // Page Settings
-            defaultZoomLevel: window.getZoomLevel()
+            defaultZoomLevel: window.getZoomLevel(),
+
+            isDownload: window.getPDFDownload(),
+            useNewViewer: window.getUseNewPDFViewer(),
         });
 
         document.title = `${this.settings.title} » ${this.section.title}`;
@@ -2103,8 +2109,8 @@ class SettingsPageSettingsContentPage extends Component {
         const { classes } = this.props;
 
         const PageHeading = (props) => (
-            <Grid item xs={12}>
-                <div style={{ display: 'flex', alignItems: 'center', height: 30, marginBottom: 4 }}>
+            <Grid item xs={12} className={classes.paperHeadingRoot}>
+                <div className={classes.paperHeading} style={{ display: 'flex', alignItems: 'center' }}>
                     <IconButton size="small" component={RouterLink} to="/pageSettings">
                         <ArrowBackIcon />
                     </IconButton>
@@ -2162,7 +2168,43 @@ class SettingsPageSettingsContentPage extends Component {
                         </Grid>
                     </Fragment>
                 )
-                case 'pdfDocuments': return (<Fragment></Fragment>)
+                case 'pdfDocuments': return (
+                    <Fragment>
+                        <Grid item xs={12} className={classes.itemRoot}>
+                            <div className={classes.itemTitleRoot}>
+                                <Typography variant="body2" style={{ marginLeft: 10 }}>{this.section.controls[this.state.type].controls.isDownload}</Typography>
+                            </div>
+                            <div className={classes.itemControlRoot}>
+                                <Switch
+                                    checked={this.state.isDownload}
+                                    onChange={(e) => {
+                                        this.setState({ ...this.state, isDownload: e.target.checked });
+                                        window.setPDFDownload(e.target.checked);
+                                    }}
+                                    color="primary"
+                                    value="isDownload"
+                                />
+                            </div>
+                        </Grid>
+                        <Grid item xs={12} className={classes.itemDivider}><Divider /></Grid>
+                        <Grid item xs={12} className={classes.itemRoot}>
+                            <div className={classes.itemTitleRoot}>
+                                <Typography variant="body2" style={{ marginLeft: 10 }}>{this.section.controls[this.state.type].controls.useNewViewer}</Typography>
+                            </div>
+                            <div className={classes.itemControlRoot}>
+                                <Switch
+                                    checked={this.state.useNewViewer}
+                                    onChange={(e) => {
+                                        this.setState({ ...this.state, useNewViewer: e.target.checked });
+                                        window.setUseNewPDFViewer(e.target.checked);
+                                    }}
+                                    color="primary"
+                                    value="useNewViewer"
+                                />
+                            </div>
+                        </Grid>
+                    </Fragment>
+                )
                 default: return (<Redirect to="/pageSettings" />)
             }
         }
