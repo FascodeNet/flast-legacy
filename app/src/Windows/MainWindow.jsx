@@ -544,7 +544,7 @@ class BrowserView extends Component {
 					<ToolbarButton src={this.isDarkModeOrPrivateMode.bind(this, LightFeedbackIcon, DarkFeedbackIcon)} dark={this.getTheme()} position="right"
 						toolTip={lang.window.toolBar.extensions.feedback} onClick={() => ipcRenderer.send(`feedbackWindow-open`, {})} />
 					<ToolbarDivider isDarkModeOrPrivateMode={this.getTheme()} />
-					<ToolbarButton src={isPrivate ? IncognitoIcon : userConfig.get('profile.avatar') || this.isDarkModeOrPrivateMode.bind(this, LightAccountIcon, DarkAccountIcon)} style={{ border: isPrivate ? 'solid 1px #dadce0' : 'none' }} imageStyle={{ borderRadius: !isPrivate ? '50%' : 'none' }}
+					<ToolbarButton src={isPrivate ? IncognitoIcon : userConfig.get('profile.avatar') || this.isDarkModeOrPrivateMode.bind(this, LightAccountIcon, DarkAccountIcon)} style={{ border: isPrivate ? 'solid 1px #dadce0' : 'none', margin: 5 }} imageStyle={{ borderRadius: !isPrivate ? '50%' : 'none' }}
 						dark={this.getTheme()} position="right" text={isPrivate ? lang.main.privateMode : ''} toolTip={!isPrivate ? (userConfig.get('profile.name') || lang.main.user) : lang.main.privateMode} onClick={() => this.openMenu(true)} />
 					<ToolbarButton src={this.isDarkModeOrPrivateMode.bind(this, LightMoreIcon, DarkMoreIcon)} dark={this.getTheme()} position="right" toolTip={lang.window.toolBar.menu.name} onClick={() => this.openMenu()} />
 				</Toolbar>

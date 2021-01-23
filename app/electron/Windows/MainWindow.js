@@ -2016,7 +2016,9 @@ module.exports = class MainWindow extends BrowserWindow {
 
     loadSessionAndProtocol = (partition, isPrivate = false) => {
         const ses = session.fromPartition(partition);
-        ses.setUserAgent(`${ses.getUserAgent().replace(name, app_name).replace(/ Electron\/[A-z0-9-\.]*/g, '')}${isPrivate ? ' PrivMode' : ''}`);
+
+        // ses.setUserAgent(`Mozilla/5.0 (X11; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86.0`);
+        ses.setUserAgent(`${ses.getUserAgent().replace(name, app_name).replace(/ Electron\/[A-z0-9-\\.]*/g, '').replace(/ Chrome\/[A-z0-9-\\.]*/g, '')}${isPrivate ? ' PrivMode' : ''}`);
 
         ses.setPermissionRequestHandler(async (webContents, permission, callback, details) => {
             const { protocol, hostname, port } = new URL(webContents.getURL());
